@@ -185,7 +185,9 @@ public interface CatalogComposite
         }
         
         public ServiceComposite findServiceEntity( IService service ) {
+            log.info( "find service: " + service );
             for (ServiceComposite candidate : services()) {
+                log.info( "    candidate: " + candidate.getService() );
                 if (candidate.getService() == service) {
                     return candidate;
                 }
