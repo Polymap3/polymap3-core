@@ -40,6 +40,8 @@ import org.polymap.core.qi4j.event.PropertyChangeSupport;
 public interface IMap
         extends Entity, Labeled, Visible, ACL, ParentMap, IAdaptable, PropertyChangeSupport { 
 
+    public static final int[]       DEFAULT_SCALES = new int[] {1000000, 500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 300, 100};
+    
     public static final String      PROP_MAPS = "maps";
     public static final String      PROP_LAYERS = "layers";
     public static final String      PROP_CRSCODE = "crscode";
@@ -50,6 +52,7 @@ public interface IMap
     public static final String      PROP_MAXEXTENT = "maxextent";
     public static final String      PROP_MAPSTATUS = "mapstatus";
     public static final String      PROP_RENDERSTATUS = "renderstatus";
+    public static final String      PROP_SCALES = "scales";
     
 
 //    public String toString();
@@ -119,6 +122,12 @@ public interface IMap
     @ModelProperty(PROP_MAXEXTENT)
     public void setMaxExtent( ReferencedEnvelope result );
 
+
+    public int[] getScales();
+    
+    @ModelProperty(PROP_SCALES)
+    public void setScales( int[] scales );
+    
     
     /**
      * Indication of the general status.

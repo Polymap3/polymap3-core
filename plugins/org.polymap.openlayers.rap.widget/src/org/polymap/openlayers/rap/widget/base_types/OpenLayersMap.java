@@ -14,6 +14,8 @@
  */
 package org.polymap.openlayers.rap.widget.base_types;
 
+import java.util.Arrays;
+
 import org.polymap.openlayers.rap.widget.OpenLayersWidget;
 import org.polymap.openlayers.rap.widget.base.OpenLayersObject;
 import org.polymap.openlayers.rap.widget.controls.Control;
@@ -97,16 +99,36 @@ public class OpenLayersMap
         this.units = units;
         this.maxExtent = maxExtent;
         
-		super.create_with_widget( new Stringer( "new OpenLayers.Map( {",
-		        "div: document.getElementById( this._id),",
-		        "controls: [],",
-		        "projection: ", projection.getJSObjRef(), ",",
-		        "displayProjection: ", display_projection.getJSObjRef() + ",",
-		        "units: '", units, "',",
-		        "maxExtent: ", maxExtent.getJSObjRef(), ",",
-		        "maxResolution: ", maxResolution, "});" ).toString(), widget);
-	}
-	
+        super.create_with_widget( new Stringer( "new OpenLayers.Map( {",
+                "div: document.getElementById( this._id),",
+                "controls: [],",
+                "projection: ", projection.getJSObjRef(), ",",
+                "displayProjection: ", display_projection.getJSObjRef() + ",",
+                "units: '", units, "',",
+                "maxExtent: ", maxExtent.getJSObjRef(), ",",
+                "maxResolution: ", maxResolution, "});" ).toString(), widget);
+    }
+    
+    public OpenLayersMap( OpenLayersWidget widget, Projection projection,
+            Projection display_projection, String units, Bounds maxExtent, int[] scales ) {
+        this.widget = widget;
+        this.projection = projection;
+        this.display_projection = display_projection;
+        this.units = units;
+        this.maxExtent = maxExtent;
+        
+        super.create_with_widget( new Stringer(
+                "new OpenLayers.Map( {",
+                "  div: document.getElementById( this._id),",
+                "  controls: [],",
+                "  projection: ", projection.getJSObjRef(), ",",
+                "  displayProjection: ", display_projection.getJSObjRef() + ",",
+                "  units: '", units, "',",
+                "  maxExtent: ", maxExtent.getJSObjRef(), ",",
+                "  scales: ", Arrays.toString( scales ),
+                "});" ).toString(), widget);
+    }
+    
 	public OpenLayersMap(OpenLayersWidget widget) {
         this.widget = widget;
 

@@ -1,7 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2009, Polymap GmbH, and individual contributors as indicated
- * by the @authors tag.
+ * Copyright (C) 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -12,17 +11,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
- * $Id$
  */
-
 package org.polymap.core.project.model;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -32,6 +25,7 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,7 +50,6 @@ import org.polymap.core.qi4j.AssocCollectionImpl;
  * 
  *
  * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @version POLYMAP3 ($Revision$)
  * @since 3.0
  */
 public interface MapState
@@ -78,7 +71,10 @@ public interface MapState
     @UseDefaults
     ManyAssociation<IMap>           maps();
 
+    @Optional
+    Property<Collection<Integer>>   scales();
 
+    
     /**
      * Transient fields and methods. 
      * <p>
@@ -285,6 +281,19 @@ public interface MapState
             return visitor.result;
         }
 
+        @Override
+        public int[] getScales() {
+            Collection<Integer> result = scales().get();
+            return result != null
+                    ? ArrayUtils.toPrimitive( result.toArray( new Integer[result.size()] ) )
+                    : IMap.DEFAULT_SCALES;
+        }
+
+        @Override
+        public void setScales( int[] scales ) {
+            scales().set( Arrays.asList( ArrayUtils.toObject( scales ) ) );
+        }
+        
     }
     
 }

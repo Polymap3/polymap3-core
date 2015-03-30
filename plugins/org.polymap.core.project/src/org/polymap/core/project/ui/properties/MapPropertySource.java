@@ -3,6 +3,7 @@ package org.polymap.core.project.ui.properties;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -52,6 +53,7 @@ public class MapPropertySource
                 new RWTTextPropertyDescriptor( IMap.PROP_LABEL, i18n( "label_name" ) ),
                 new CrsPropertyDescriptor( IMap.PROP_CRSCODE, i18n( "label_crs" ) ),
                 new PropertyDescriptor( IMap.PROP_MAXEXTENT, i18n( "label_maxExtent" ) ),
+                new RWTTextPropertyDescriptor( IMap.PROP_SCALES, i18n( "label_scales" ) ),
         };
         return result;
     }
@@ -81,6 +83,13 @@ public class MapPropertySource
                     }
                 });
                 return result;
+            }
+            else if (id.equals( IMap.PROP_SCALES )) {
+                StringBuilder buf = new StringBuilder( 256 );
+                for (int s : map.getScales() ) {
+                    buf.append( buf.length()>0 ? "," : "" ).append( s );
+                }
+                return buf.toString();
             }
             else {
                 return i18n( "unknownValue" );
@@ -113,6 +122,16 @@ public class MapPropertySource
                     op.init( IMap.class, map, IMap.PROP_CRSCODE, srs );
                     OperationSupport.instance().execute( op, false, false );
                 }
+            }
+            else if (id.equals( IMap.PROP_SCALES )) {
+                String[] a = StringUtils.split( (String)value, ", " );
+                int[] scales = new int[a.length];
+                int i = 0;
+                for (String s : a) {
+                    scales[i++] = Integer.parseInt( s );
+                }
+                op.init( IMap.class, map, IMap.PROP_SCALES, scales );
+                OperationSupport.instance().execute( op, false, false );
             }
             else {
                 log.error( "Property is read-only: " + id );
