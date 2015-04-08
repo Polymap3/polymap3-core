@@ -2,18 +2,20 @@ package org.polymap.core.project.ui.properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.NumberFormat;
+
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.IPropertySource2;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
+
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.project.IMap;
 import org.polymap.core.project.Labeled;
@@ -21,6 +23,7 @@ import org.polymap.core.project.MapStatus;
 import org.polymap.core.project.Messages;
 import org.polymap.core.project.ProjectPlugin;
 import org.polymap.core.project.operations.SetPropertyOperation;
+import org.polymap.core.runtime.Polymap;
 import org.polymap.core.workbench.PolymapWorkbench;
 
 /**
@@ -49,11 +52,15 @@ public class MapPropertySource
         
 
     public IPropertyDescriptor[] getPropertyDescriptors() {
+        NumberFormat nf = NumberFormat.getInstance( Polymap.getSessionLocale() );
+        nf.setMaximumFractionDigits( 0 );
+
         IPropertyDescriptor[] result = new IPropertyDescriptor[] {
                 new RWTTextPropertyDescriptor( IMap.PROP_LABEL, i18n( "label_name" ) ),
                 new CrsPropertyDescriptor( IMap.PROP_CRSCODE, i18n( "label_crs" ) ),
                 new PropertyDescriptor( IMap.PROP_MAXEXTENT, i18n( "label_maxExtent" ) ),
                 new RWTTextPropertyDescriptor( IMap.PROP_SCALES, i18n( "label_scales" ) ),
+                new NumberPropertyDescriptor( IMap.PROP_DPI, "DPI" ).setFormat( nf ).setEditable( true ) 
         };
         return result;
     }
@@ -90,6 +97,9 @@ public class MapPropertySource
                     buf.append( buf.length()>0 ? "," : "" ).append( s );
                 }
                 return buf.toString();
+            }
+            else if (id.equals( IMap.PROP_DPI )) {
+                return map.getDPI();
             }
             else {
                 return i18n( "unknownValue" );
@@ -131,6 +141,10 @@ public class MapPropertySource
                     scales[i++] = Integer.parseInt( s );
                 }
                 op.init( IMap.class, map, IMap.PROP_SCALES, scales );
+                OperationSupport.instance().execute( op, false, false );
+            }
+            else if (id.equals( IMap.PROP_DPI )) {
+                op.init( IMap.class, map, IMap.PROP_DPI, ((Long)value).intValue() );
                 OperationSupport.instance().execute( op, false, false );
             }
             else {

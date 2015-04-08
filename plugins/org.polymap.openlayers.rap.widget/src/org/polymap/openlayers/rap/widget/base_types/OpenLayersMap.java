@@ -87,7 +87,7 @@ public class OpenLayersMap
 	
 	private float                      maxResolution;
 	
-	//private int[]                      scales;
+	private int[]                      scales;
 	
 	
     public OpenLayersMap( OpenLayersWidget widget, Projection projection,
@@ -99,8 +99,8 @@ public class OpenLayersMap
         this.units = units;
         this.maxExtent = maxExtent;
         
-        super.create_with_widget( new Stringer( "new OpenLayers.Map( {",
-                "div: document.getElementById( this._id),",
+        super.create_with_widget( new Stringer( "new OpenLayers.Map({",
+                "div: document.getElementById(this._id),",
                 "controls: [],",
                 "projection: ", projection.getJSObjRef(), ",",
                 "displayProjection: ", display_projection.getJSObjRef() + ",",
@@ -110,16 +110,20 @@ public class OpenLayersMap
     }
     
     public OpenLayersMap( OpenLayersWidget widget, Projection projection,
-            Projection display_projection, String units, Bounds maxExtent, int[] scales ) {
+            Projection display_projection, String units, Bounds maxExtent, 
+            int[] scales, int dpi ) {
         this.widget = widget;
         this.projection = projection;
         this.display_projection = display_projection;
         this.units = units;
         this.maxExtent = maxExtent;
+        this.scales = scales;
+        
+        super.addObjModCode( new Stringer( "OpenLayers.DOTS_PER_INCH=", dpi, ";" ).toString() );
         
         super.create_with_widget( new Stringer(
-                "new OpenLayers.Map( {",
-                "  div: document.getElementById( this._id),",
+                "new OpenLayers.Map({",
+                "  div: document.getElementById(this._id),",
                 "  controls: [],",
                 "  projection: ", projection.getJSObjRef(), ",",
                 "  displayProjection: ", display_projection.getJSObjRef() + ",",
@@ -132,7 +136,7 @@ public class OpenLayersMap
 	public OpenLayersMap(OpenLayersWidget widget) {
         this.widget = widget;
 
-        super.create_with_widget ("new OpenLayers.Map( { div : document.getElementById( this._id),  controls : []  });",widget);
+        super.create_with_widget ("new OpenLayers.Map({ div : document.getElementById(this._id), controls:[] });",widget);
     }
     
 	

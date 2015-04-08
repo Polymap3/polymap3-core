@@ -93,8 +93,8 @@ public class OpenLayersWidget extends Composite {
         map = new OpenLayersMap( this, projection, display_projection, units, maxExtent, maxResolution );
     }
     
-    public void createMap(Projection projection,Projection display_projection,String units,Bounds maxExtent,int[] scales) {
-        map = new OpenLayersMap( this, projection, display_projection, units, maxExtent, scales );
+    public void createMap(Projection projection,Projection display_projection,String units,Bounds maxExtent,int[] scales,int dpi) {
+        map = new OpenLayersMap( this, projection, display_projection, units, maxExtent, scales, dpi );
     }
     
 	public void prepare() {

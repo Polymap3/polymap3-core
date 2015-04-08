@@ -74,6 +74,9 @@ public interface MapState
     @Optional
     Property<Collection<Integer>>   scales();
 
+    @Optional
+    Property<Integer>               dpi();
+
     
     /**
      * Transient fields and methods. 
@@ -293,7 +296,17 @@ public interface MapState
         public void setScales( int[] scales ) {
             scales().set( Arrays.asList( ArrayUtils.toObject( scales ) ) );
         }
-        
+
+        @Override
+        public int getDPI() {
+            return com.google.common.base.Optional.fromNullable( dpi().get() ).or( IMap.DEFAULT_DPI );
+        }
+
+        @Override
+        public void setDPI( int dpi ) {
+            dpi().set( dpi );
+        }
+
     }
     
 }

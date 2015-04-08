@@ -214,7 +214,7 @@ public class MapEditor
         Bounds maxExtent = bbox != null
                 ? new Bounds( bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY() )
                 : null;
-        olwidget.createMap( proj, proj, units, maxExtent, map.getScales() );
+        olwidget.createMap( proj, proj, units, maxExtent, map.getScales(), map.getDPI() );
 
         // add some controls to the map
         OpenLayersMap olmap = olwidget.getMap();

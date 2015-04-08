@@ -41,6 +41,7 @@ public interface IMap
         extends Entity, Labeled, Visible, ACL, ParentMap, IAdaptable, PropertyChangeSupport { 
 
     public static final int[]       DEFAULT_SCALES = new int[] {1000000, 500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 300, 100};
+    public static final int         DEFAULT_DPI = 90;
     
     public static final String      PROP_MAPS = "maps";
     public static final String      PROP_LAYERS = "layers";
@@ -53,6 +54,7 @@ public interface IMap
     public static final String      PROP_MAPSTATUS = "mapstatus";
     public static final String      PROP_RENDERSTATUS = "renderstatus";
     public static final String      PROP_SCALES = "scales";
+    public static final String      PROP_DPI = "dpi";
     
 
 //    public String toString();
@@ -127,6 +129,16 @@ public interface IMap
     
     @ModelProperty(PROP_SCALES)
     public void setScales( int[] scales );
+
+    
+    /**
+     * The default DPI to be used to display this map if no information of the actual
+     * display resolution is available. Defaults to 72.
+     */
+    public int getDPI();
+    
+    @ModelProperty(PROP_DPI)
+    public void setDPI( int dpi );
     
     
     /**
