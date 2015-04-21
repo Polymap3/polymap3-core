@@ -179,8 +179,13 @@ public class ToolingModel {
             IEditorTool tool = ext.createEditorTool();
             tools.put( tool.getToolPath(), tool );
         }
+        // init all tools
         for (IEditorTool tool : tools.values()) {
-            if (!tool.init( new EditorToolSiteImpl( tool.getToolPath() ) )) {
+            tool.init( new EditorToolSiteImpl( tool.getToolPath() ) );
+        }
+        // check visibility
+        for (IEditorTool tool : tools.values()) {
+            if (!tool.shouldBeShown()) {
                 tools.remove( tool.getToolPath() );
             }
         }
@@ -262,7 +267,18 @@ public class ToolingModel {
         }
     }
 
-
+    
+    public boolean enableTool( IPath toolPath, boolean enabled ) {        
+        // find node
+        IEditorTool tool = tools.get( toolPath );
+        assert tool != null : "No such tool: " + toolPath;
+        fireEvent( tool, enabled 
+                ? EventType.TOOL_ENABLED 
+                : EventType.TOOL_DISABLED, null );
+        return true;
+    }
+    
+    
     /**
      * Gets the tools for the given toolPath. Returns already initialized tool
      * instances or creates new tools if the given parentPath was not yet accessed in
@@ -396,9 +412,15 @@ public class ToolingModel {
         }
         
         @Override
-        public boolean triggerTool( IPath toTrigger, boolean active ) {
-            return ToolingModel.this.triggerTool( toTrigger, active );
+        public boolean triggerTool( IPath p, boolean active ) {
+            return ToolingModel.this.triggerTool( p, active );
         }
+
+        @Override
+        public void enableTool( IPath p, boolean enabled ) {
+            ToolingModel.this.enableTool( p, enabled );
+        }
+        
     }
     
 }

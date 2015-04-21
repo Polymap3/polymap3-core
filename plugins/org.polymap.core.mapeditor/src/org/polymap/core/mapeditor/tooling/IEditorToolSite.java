@@ -76,5 +76,7 @@ public interface IEditorToolSite {
      *         call.
      */
     public boolean triggerTool( IPath toolPath, boolean active );
+
+    public void enableTool( IPath toolPath, boolean enabled );
     
 }

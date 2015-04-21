@@ -74,15 +74,14 @@ public class EditTool
     private KeyboardDefaultsControl keyboardControl;
 
     @Override
-    public boolean init( IEditorToolSite site ) {
-        boolean result = super.init( site );
+    public void init( IEditorToolSite site ) {
+        super.init( site );
         
         additionalLayerFilter = new Predicate<ILayer>() {
             public boolean apply( ILayer input ) {
                 return ACLUtils.checkPermission( input, AclPermission.WRITE, false );
             }
         };
-        return result;
     }
     
 
@@ -249,6 +248,9 @@ public class EditTool
 //                            // XXX hack to remove 'duplicate" geometries introduces by OL 2.12
 //                            ReferencedEnvelope bounds = getSite().getEditor().getMap().getExtent();
 //                            vectorLayer.selectFeatures( bounds, false );
+
+                            // disable tool
+                            getSite().triggerTool( getSite().getToolPath(), false );
                         }
                     });
                 }

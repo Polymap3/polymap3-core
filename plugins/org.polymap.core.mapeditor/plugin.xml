@@ -295,6 +295,15 @@
             tooltip="%tools_digitize_tip">
       </tool>
       <tool
+            class="org.polymap.core.mapeditor.tooling.edit.RegularPolygonTool"
+            description="%tools_regular_description"
+            icon="icons/etool16/add_regular16.png"
+            id="org.polymap.core.mapeditor.RegularPolygoneTool"
+            label="%tools_regular_label"
+            toolPath="digitize/regular"
+            tooltip="%tools_regular_tip">
+      </tool>
+      <tool
             class="org.polymap.core.mapeditor.tooling.edit.SnapTool"
             description="%tools_snap_description"
             icon="icons/etool16/snap_target.gif"

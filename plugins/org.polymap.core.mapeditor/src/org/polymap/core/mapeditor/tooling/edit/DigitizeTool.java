@@ -47,6 +47,10 @@ import org.polymap.openlayers.rap.widget.base.OpenLayersObject;
 import org.polymap.openlayers.rap.widget.controls.DrawFeatureControl;
 import org.polymap.openlayers.rap.widget.controls.KeyboardDefaultsControl;
 import org.polymap.openlayers.rap.widget.controls.NavigationControl;
+import org.polymap.openlayers.rap.widget.handler.DrawFeatureHandler;
+import org.polymap.openlayers.rap.widget.handler.PathHandler;
+import org.polymap.openlayers.rap.widget.handler.PointHandler;
+import org.polymap.openlayers.rap.widget.handler.PolygonHandler;
 import org.polymap.openlayers.rap.widget.layers.WMSLayer;
 
 /**
@@ -70,15 +74,14 @@ public class DigitizeTool
 
     
     @Override
-    public boolean init( IEditorToolSite site ) {
-        boolean result = super.init( site );
+    public void init( IEditorToolSite site ) {
+        super.init( site );
         
         additionalLayerFilter = new Predicate<ILayer>() {
             public boolean apply( ILayer input ) {
                 return ACLUtils.checkPermission( input, AclPermission.WRITE, false );
             }
         };
-        return result;
     }
     
     
@@ -91,6 +94,11 @@ public class DigitizeTool
     }
 
     
+    public DrawFeatureControl getDrawControl() {
+        return drawControl;
+    }
+
+
     @Override
     public EditVectorLayer getVectorLayer() {
         return vectorLayer;
@@ -136,22 +144,22 @@ public class DigitizeTool
             log.debug( "Geometry: " + geomType );
 
             // choose appropriate handler
-            String handler = null;
+            DrawFeatureHandler handler = null;
             if ("MultiLineString".equals( geomType )
                     || "LineString".equals( geomType )) {
-                handler = DrawFeatureControl.HANDLER_LINE;
+                handler = new PathHandler();
             }
             else if ("MultiPolygon".equals( geomType )
                     || "Polygon".equals( geomType )) {
-                handler = DrawFeatureControl.HANDLER_POLYGON;
+                handler = new PolygonHandler();
             }
             else if ("MultiPoint".equals( geomType )
                     || "Point".equals( geomType )) {
-                handler = DrawFeatureControl.HANDLER_POINT;
+                handler = new PointHandler();
             }
             else {
                 log.warn( "Unhandled geometry type: " + geomType + ". Using polygone handler..." );
-                handler = DrawFeatureControl.HANDLER_POLYGON;
+                handler = new PolygonHandler();
                 throw new Exception( "Dieser Geometrietyp kann nicht bearbeitet werden: " + geom.getType().getName() );
             }
             drawControl = new DrawFeatureControl( vectorLayer.getVectorLayer(), handler );
@@ -233,6 +241,8 @@ public class DigitizeTool
                             if (olayer != null) {
                                 olayer.redraw( true );
                             }
+                            // disable tool
+                            getSite().triggerTool( getSite().getToolPath(), false );
                         }
                     });
                 }

@@ -160,7 +160,8 @@ public class ToolingViewer {
             panels.remove( this );
         }
 
-
+        
+        @Override
         public void toolingChanged( ToolingEvent ev ) {
             if (toolPath.equals( ev.getSource().getToolPath() )
                     && ev.getType() == EventType.TOOL_DEACTIVATED) {
@@ -172,6 +173,12 @@ public class ToolingViewer {
                 }
                 else if (ev.getType() == EventType.TOOL_DEACTIVATED) {
                     onToolDeactivated( ev.getSource() );
+                }
+                else if (ev.getType() == EventType.TOOL_ENABLED) {
+                    onToolEnabled( ev.getSource(), true );
+                }
+                else if (ev.getType() == EventType.TOOL_DISABLED) {
+                    onToolEnabled( ev.getSource(), false );
                 }
             }
         }
@@ -209,7 +216,7 @@ public class ToolingViewer {
 
         
         protected void onToolActivated( IEditorTool tool ) {
-            assert !toolAreas.containsKey( tool ) : "toolAreay has entry for tool: " + tool;
+            assert !toolAreas.containsKey( tool ) : "toolArea has entry for tool: " + tool;
             
             // toolbar icon (in case triggered via API)
             for (ToolItem item : tb.getItems()) {
@@ -299,6 +306,16 @@ public class ToolingViewer {
                     }
                 }
             });
+        }
+     
+        
+        protected void onToolEnabled( IEditorTool tool, boolean enabled ) {
+            for (ToolItem item : tb.getItems()) {
+                if (item.getData( "editorTool" ) == tool) {
+                    item.setEnabled( enabled );
+                    break;
+                }
+            }
         }
         
     }

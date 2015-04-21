@@ -54,8 +54,8 @@ public class NavigationTool
     
     
     @Override
-    public boolean init( IEditorToolSite site ) {
-        boolean result = super.init( site );
+    public void init( IEditorToolSite site ) {
+        super.init( site );
         
         // deferred activation
         Polymap.getSessionDisplay().asyncExec( new Runnable() {
@@ -63,7 +63,6 @@ public class NavigationTool
                 getSite().triggerTool( getSite().getToolPath(), true );
             }
         });
-        return result;
     }
 
 

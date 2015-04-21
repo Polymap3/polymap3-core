@@ -86,8 +86,8 @@ public class SnapTool
 
     
     @Override
-    public boolean init( IEditorToolSite site ) {
-        boolean result = super.init( site );
+    public void init( IEditorToolSite site ) {
+        super.init( site );
 
         tolerance = site.getMemento().getInteger( "tolerance" );
         tolerance = tolerance != null ? tolerance : DEFAULT_TOLERANCE;
@@ -155,7 +155,6 @@ public class SnapTool
                 }
             }
         });
-        return result;
     }
 
 

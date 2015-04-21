@@ -229,8 +229,8 @@ public class MapEditor
         // OL >= 2.12 seems to catch each and every keyboard event
       // olmap.addControl( new KeyboardDefaultsControl() );
 
-        olmap.addControl( new ScaleLineControl() );
-        olmap.addControl( new ScaleControl() );
+        olmap.addControl( new ScaleLineControl( false ).setBottomOutUnits( "" ) );
+        olmap.addControl( new ScaleControl( false ) );
 
         ContextMenuControl contextMenu = new ContextMenuControl( this );
         getSite().setSelectionProvider( contextMenu );

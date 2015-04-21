@@ -34,8 +34,10 @@ import org.polymap.core.mapeditor.MapEditor;
  */
 public interface IEditorTool {
     
-    public boolean init( IEditorToolSite site );
-
+    public void init( IEditorToolSite site );
+    
+    public boolean shouldBeShown();
+    
     public boolean isActive();
 
     /**

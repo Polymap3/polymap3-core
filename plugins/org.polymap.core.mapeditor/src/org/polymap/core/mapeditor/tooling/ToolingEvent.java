@@ -28,7 +28,9 @@ public class ToolingEvent
         TOOL_ACTIVATED,
         TOOL_DEACTIVATED, 
         TOOL_ACTIVATING, 
-        TOOL_DEACTIVATING
+        TOOL_DEACTIVATING, 
+        TOOL_ENABLED,
+        TOOL_DISABLED
     }
     
     private EventType           type;

@@ -128,8 +128,8 @@ public abstract class BaseLayerEditorTool
     
     
     @Override
-    public boolean init( IEditorToolSite site ) {
-        boolean result = super.init( site );
+    public void init( IEditorToolSite site ) {
+        super.init( site );
         this.map = site.getEditor().getMap();
         
         // get config from memento
@@ -142,7 +142,6 @@ public abstract class BaseLayerEditorTool
         }
         
         fireEvent( this, PROP_CREATED, null );
-        return result;
     }
 
     
@@ -150,6 +149,7 @@ public abstract class BaseLayerEditorTool
     public void dispose() {        
         super.dispose();
         fireEvent( this, PROP_DISPOSED, null );
+        listeners.clear();
     }
 
 
@@ -250,6 +250,7 @@ public abstract class BaseLayerEditorTool
             if (selectableLayers.size() >= 1) {
                 selectedLayer = selectableLayers.get( 0 );
             }
+            selectedLayer = SelectLayerDialog.maybeOpen( getSite().getMemento(), selectableLayers(), selectedLayer );
         }
 
         mapListener = new MapListener();

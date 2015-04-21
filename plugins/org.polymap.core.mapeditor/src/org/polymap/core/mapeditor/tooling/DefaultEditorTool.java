@@ -66,12 +66,15 @@ public abstract class DefaultEditorTool
     private boolean             active;
     
     @Override
-    public boolean init( @SuppressWarnings("hiding") IEditorToolSite site ) {
+    public void init( @SuppressWarnings("hiding") IEditorToolSite site ) {
         this.site = site;
         
         // listen to other tools
         getSite().addListener( this );
-        
+    }
+
+    @Override
+    public boolean shouldBeShown() {
         return true;
     }
 
