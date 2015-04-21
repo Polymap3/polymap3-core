@@ -208,7 +208,8 @@ public class OpenLayersObject {
 
 
     public String getJSObjRef() {
-        return "objs['" + obj_ref + "']";
+        return new Stringer().replaceNulls( "null" )
+                .add( "objs['", obj_ref, "']" ).toString();
     }
 
 

@@ -37,11 +37,11 @@ public class OpenLayersCommand {
     private OpenLayersWidget assigned_widget;
     
     public OpenLayersCommand(String cmd) {
-        this.command=cmd;
-        this.assigned_widget=null;
+        this(cmd,null);
     }
     
     public OpenLayersCommand(String cmd,OpenLayersWidget widget) {
+        //System.out.println( "OPENLAYERS: " + cmd );
         this.command=cmd;
         this.assigned_widget=widget;
     }

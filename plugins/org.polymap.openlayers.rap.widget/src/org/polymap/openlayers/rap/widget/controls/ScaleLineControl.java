@@ -1,7 +1,6 @@
 /*
  * polymap.org
- * Copyright 2009, Polymap GmbH, and individual contributors as indicated
- * by the @authors tag.
+ * Copyright (C) 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -12,41 +11,38 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
  */
-
 package org.polymap.openlayers.rap.widget.controls;
 
 /**
  * 
  * @author Marcus -LiGi- B&uuml;schleb < mail: ligi (at) polymap (dot) de >
- * 
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-
 public class ScaleLineControl extends Control {
 
-	public ScaleLineControl() {
-		super.create("new OpenLayers.Control.ScaleLine();");
+	public ScaleLineControl( boolean geodesic ) {
+		super.create("new OpenLayers.Control.ScaleLine({geodesic:" + geodesic + "});");
 	}
 
-	public void setTopOutUnits(String units) {
+	public ScaleLineControl setTopOutUnits(String units) {
 		super.addObjModCode("obj.topOutUnits='" + units + "';");
+        return this;
 	}
 	
-	public void setBottomOutUnits(String units) {
+	public ScaleLineControl setBottomOutUnits(String units) {
 		super.addObjModCode("obj.bottomOutUnits='" + units + "';");
+		return this;
 	}
 
-	public void setTopInUnits(String units) {
+	public ScaleLineControl setTopInUnits(String units) {
 		super.addObjModCode("obj.topInUnits='" + units + "';");
+	    return this;
 	}
 	
-	public void setBottomInUnits(String units) {
+	public ScaleLineControl setBottomInUnits(String units) {
 		super.addObjModCode("obj.bottomInUnits='" + units + "';");
+        return this;
 	}
+	
 }

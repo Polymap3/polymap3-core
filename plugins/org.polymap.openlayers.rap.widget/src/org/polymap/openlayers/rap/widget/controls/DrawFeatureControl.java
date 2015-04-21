@@ -1,6 +1,6 @@
 /*
  * polymap.org
- * Copyright 2009-2013, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -14,6 +14,8 @@
  */
 package org.polymap.openlayers.rap.widget.controls;
 
+import org.polymap.openlayers.rap.widget.handler.DrawFeatureHandler;
+import org.polymap.openlayers.rap.widget.handler.Handler;
 import org.polymap.openlayers.rap.widget.layers.VectorLayer;
 import org.polymap.openlayers.rap.widget.util.Stringer;
 
@@ -27,24 +29,18 @@ public class DrawFeatureControl
         extends Control {
     
     /** Triggered when a feature has been added. */
-    public final static String      EVENT_ADDED = "featureadded";
+    public final static String  EVENT_ADDED = "featureadded";
 
-    public final static String      HANDLER_LINE = "OpenLayers.Handler.Path";
-
-    public final static String      HANDLER_POLYGON = "OpenLayers.Handler.Polygon";
-
-    public final static String      HANDLER_POINT = "OpenLayers.Handler.Point";
-
-
+    private DrawFeatureHandler      handler;
+    
     /**
      * 
      * @param layer
-     * @param handler The handler to use to draw the feature. One of the
-     *        <code>HANDLER_XXX</code> constants.
+     * @param handler The handler to use to draw the feature.
      */
-    public DrawFeatureControl(VectorLayer layer, String handler) {
+    public DrawFeatureControl( VectorLayer layer, DrawFeatureHandler handler ) {
         super.create( new Stringer( "new OpenLayers.Control.DrawFeature(", 
-            layer.getJSObjRef(), ", ", handler,
+            layer.getJSObjRef(), ", ", handler.jsClassName(),
             // XXX FIX http://polymap.org/atlas/ticket/219
             // the event: this.events.triggerEvent('featureadded') is not fired for unknown reason
             // -> do triggerEvent() in timeout which seems to disarm a race cond
@@ -101,8 +97,35 @@ public class DrawFeatureControl
                 "}",
             "}",
             "});").toString() );
+        
+        handler.init( this );
+        this.handler = handler;
     }
 
+    
+    public Handler getHandler() {
+        return handler;
+    }
+
+    
+    /**
+     * Sets the new handler and destroys the old one.
+     */
+    public void changeHandler( DrawFeatureHandler newHandler ) {
+        handler.deactivate();
+        handler.destroy();
+        
+        handler = newHandler;
+        handler.init( this );
+        addObjModCode( new Stringer(
+            getJSObjRef(), ".handler = new ", newHandler.jsClassName(), "(", 
+                getJSObjRef(), ",",
+                getJSObjRef(), ".callbacks,", 
+                getJSObjRef(), ".handlerOptions);" ).toString() );
+        handler.activate();
+    }
+    
+    
 //    public void addMode( int mode ) {
 //        super.addObjModCode( "obj.mode |=  OpenLayers.Control.ModifyFeature." + mode2name( mode ) );
 //    }

@@ -1,10 +1,10 @@
-/*
+/* 
  * polymap.org
- * Copyright (C) 2009-2015, Polymap GmbH. All  rights reserved.
+ * Copyright (C) 2015, Falko Bräutigam. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 3 of
+ * published by the Free Software Foundation; either version 3.0 of
  * the License, or (at your option) any later version.
  *
  * This software is distributed in the hope that it will be useful,
@@ -12,16 +12,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  */
-package org.polymap.openlayers.rap.widget.controls;
+package org.polymap.openlayers.rap.widget.handler;
 
 /**
- * 
- * @author Marcus -LiGi- B&uuml;schleb < mail: ligi (at) polymap (dot) de >
+ * The OpenLayers.Handler.Point handler. 
+ *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
-public class ScaleControl extends Control {
+public class PointHandler
+        extends DrawFeatureHandler {
 
-	public ScaleControl( boolean geodesic ) {
-		super.create("new OpenLayers.Control.Scale();");
-	}
+    @Override
+    public String jsClassName() {
+        return "OpenLayers.Handler.Point";
+    }
+    
 }

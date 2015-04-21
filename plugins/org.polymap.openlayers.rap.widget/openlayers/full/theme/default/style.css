@@ -20,12 +20,15 @@
  * org.polymap.core.mapeditor.navigation.NavigationSupport 
  */
 .olControlNavigationActive {
-    /*cursor: url(cursor/navigation.cur), move !important;*/
-    cursor: move !important;
+    /*cursor: url("cursor/navigation.png"), crosshair !important;*/
+    cursor: grab !important;
 }
 
 /* SelectFeatureSupport */
-.olControlSelectFeatureActive {
+.olControlSelectFeatureActive,
+.olControlDrawFeatureActive,
+.olControlModifyFeatureActive {
+    /*cursor: url("cursor/navigation.png"), move !important;*/
     cursor: crosshair !important;
 }
 
