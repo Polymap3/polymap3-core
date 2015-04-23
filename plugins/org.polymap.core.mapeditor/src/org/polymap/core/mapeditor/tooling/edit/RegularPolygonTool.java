@@ -219,7 +219,8 @@ public class RegularPolygonTool
             }
         });
         Float savedRadius = memento.getFloat( PROP_RADIUS );
-        if (Objects.firstNonNull( savedRadius, -1 ).equals( -1f )) {
+        log.info( "savedRadius: " + savedRadius );
+        if (Objects.firstNonNull( savedRadius, -1f ).equals( -1f )) {
             radiusCombo.select( 0 );
             radiusCombo.notifyListeners( SWT.Selection, new Event() );
         }
