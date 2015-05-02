@@ -38,6 +38,7 @@ import org.qi4j.api.entity.association.Association;
 import org.qi4j.api.entity.association.ManyAssociation;
 import org.qi4j.api.injection.scope.This;
 import org.qi4j.api.property.Property;
+import org.qi4j.api.unitofwork.NoSuchEntityException;
 import org.qi4j.runtime.entity.EntityInstance;
 
 import com.google.common.collect.ObjectArrays;
@@ -303,7 +304,13 @@ public interface PropertyChangeSupport
 
         public void set( Object associated )
                 throws IllegalArgumentException {
-            Object oldValue = delegate.get();
+            Object oldValue = null;
+            try { 
+                // the old value could be deleted
+                oldValue = delegate.get();
+            } catch (NoSuchEntityException nsee) {
+                // do nothing
+            }
             delegate.set( associated );
             entityInstance.<PropertyChangeSupport>proxy().fireEvent( qualifiedName(), associated, oldValue, this );
         }
