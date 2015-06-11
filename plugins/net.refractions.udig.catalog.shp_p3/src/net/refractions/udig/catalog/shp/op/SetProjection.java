@@ -22,7 +22,6 @@ import org.eclipse.jface.window.Window;
 
 import org.eclipse.swt.widgets.Display;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 /**
@@ -82,8 +81,10 @@ public class SetProjection implements IOp {
 					if (result != null) {
 						for (ShapefileDataStore ds : allDatastores) {
 							CoordinateReferenceSystem crs = ds.getSchema().getCoordinateReferenceSystem();
-							if (!CRS.equalsIgnoreMetadata(result, crs))
+							// falko: do it! allow force EPSG authority
+							//if (!CRS.equalsIgnoreMetadata(result, crs))
 								ds.forceSchemaCRS(result);
+								
 							ICatalog catalog = CatalogPlugin.getDefault()
 									.getLocalCatalog();
 							List<IResolve> members = catalog
