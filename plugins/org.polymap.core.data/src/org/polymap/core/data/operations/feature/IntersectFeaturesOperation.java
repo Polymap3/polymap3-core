@@ -98,7 +98,7 @@ public class IntersectFeaturesOperation
 
     private ILayer                          layer;
     
-    /** Initialized by teh ChooseLayerPage. */
+    /** Initialized by the ChooseLayerPage. */
     private ILayer                          queryLayer;
     
     private LayerFeatureSelectionOperation  delegate;
@@ -624,18 +624,18 @@ public class IntersectFeaturesOperation
                 }
             });
 
-            Button containsBtn = new Button( igroup, SWT.RADIO );
-            containsBtn.setText( i18n( "contains" ) );
-            containsBtn.setLayoutData( SimpleFormData.filled().top( overlapsBtn ).bottom( -1 ).create() );
-            containsBtn.addSelectionListener( new SelectionAdapter() {
-                public void widgetSelected( SelectionEvent ev ) {
-                    mode = new Contains( mode.distance );
-                }
-            });
+//            Button containsBtn = new Button( igroup, SWT.RADIO );
+//            containsBtn.setText( i18n( "contains" ) );
+//            containsBtn.setLayoutData( SimpleFormData.filled().top( overlapsBtn ).bottom( -1 ).create() );
+//            containsBtn.addSelectionListener( new SelectionAdapter() {
+//                public void widgetSelected( SelectionEvent ev ) {
+//                    mode = new Contains( mode.distance );
+//                }
+//            });
 
             Button crossesBtn = new Button( igroup, SWT.RADIO );
             crossesBtn.setText( i18n( "crosses" ) );
-            crossesBtn.setLayoutData( SimpleFormData.filled().top( containsBtn ).bottom( -1 ).create() );
+            crossesBtn.setLayoutData( SimpleFormData.filled().top( overlapsBtn ).bottom( -1 ).create() );
             crossesBtn.addSelectionListener( new SelectionAdapter() {
                 public void widgetSelected( SelectionEvent ev ) {
                     mode = new Crosses( mode.distance );
