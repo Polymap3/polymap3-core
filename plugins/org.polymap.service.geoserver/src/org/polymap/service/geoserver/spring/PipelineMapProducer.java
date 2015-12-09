@@ -168,7 +168,7 @@ public class PipelineMapProducer
                 UIJob job = new UIJob( getClass().getSimpleName() + ": " + layer.getLabel() ) {
                     protected void runWithException( IProgressMonitor monitor ) throws Exception {
                         try {
-                            // XXX this excludes Cache304 (which support EncodedImageResponse only)
+                            // XXX this excludes Cache304 (which supports EncodedImageResponse only)
                             Pipeline pipeline = loader.getOrCreatePipeline( layer, LayerUseCase.IMAGE );
 
                             GetMapRequest targetRequest = prepareProcessorRequest();

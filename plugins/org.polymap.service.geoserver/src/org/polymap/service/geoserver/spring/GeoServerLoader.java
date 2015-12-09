@@ -174,14 +174,13 @@ public class GeoServerLoader
      */
     public Pipeline getOrCreatePipeline( final ILayer layer, final LayerUseCase usecase ) 
     throws IOException, PipelineIncubationException {
-        
-        return pipelines.get( layer.id(), new CacheLoader<String,Pipeline,IOException>() {
-        
-            public Pipeline load( String key ) throws IOException {
+        String key = layer.id() + "|" + usecase.asString();
+        return pipelines.get( key, new CacheLoader<String,Pipeline,IOException>() {
+            @Override
+            public Pipeline load( String _key ) throws IOException {
                 try {
                     IService service = findService( layer );
-                    return pipelineIncubator.newPipeline( 
-                            usecase, layer.getMap(), layer, service );
+                    return pipelineIncubator.newPipeline( usecase, layer.getMap(), layer, service );
                 }
                 catch (PipelineIncubationException e) {
                     // should never happen
@@ -321,6 +320,7 @@ public class GeoServerLoader
             catch (Exception e) {
                 log.error( "Error while creating catalog: " + e.getLocalizedMessage() );
                 log.debug( "", e );
+                continue;
             }
                 
             // DataStore
