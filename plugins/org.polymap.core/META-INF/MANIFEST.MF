@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.refractions.udig.core,
  org.polymap.core.libs;bundle-version="3.1.0";visibility:=reexport,
  javax.servlet;bundle-version="2.5.0";visibility:=reexport,
- org.eclipse.equinox.security;bundle-version="1.0.200"
+ org.eclipse.equinox.security;bundle-version="1.0.200",
+ org.eclipse.equinox.http.registry;bundle-version="1.1.1"
 Eclipse-LazyStart: true
 Bundle-Vendor: polymap.org
 Export-Package: org.polymap.core,

@@ -262,5 +262,21 @@
             name="%cheatsheets_welcome">
       </cheatsheet>
    </extension>
+   <extension
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/kerberos"
+            class="org.polymap.core.security.SpnegoServlet"
+            load-on-startup="true">
+      </servlet>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.http.registry.filters">
+      <filter
+            alias="/kerberos"
+            class="org.polymap.core.security.SpnegoFilter"
+            load-on-startup="true">
+      </filter>
+   </extension>
 
 </plugin>
