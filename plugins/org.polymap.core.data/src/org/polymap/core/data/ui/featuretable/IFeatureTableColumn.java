@@ -1,5 +1,5 @@
 /*
- * polymap.org Copyright 2011, Falko Bräutigam. All rights reserved.
+ * polymap.org Copyright (C) 2011-2014, Falko Bräutigam. All rights reserved.
  * 
  * This is free software; you can redistribute it and/or modify it under the terms of
  * the GNU Lesser General Public License as published by the Free Software
@@ -17,7 +17,12 @@ import java.util.Comparator;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewerColumn;
 
-interface IFeatureTableColumn {
+/**
+ * 
+ *
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
+ */
+public interface IFeatureTableColumn {
 
     /**
      * Called by the {@link FeatureTableViewer} after this column was added to it.

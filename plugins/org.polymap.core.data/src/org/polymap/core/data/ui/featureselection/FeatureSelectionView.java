@@ -17,6 +17,7 @@ package org.polymap.core.data.ui.featureselection;
 import static org.polymap.core.project.ILayer.PROP_GEORESID;
 import static org.polymap.core.qi4j.event.PropertyChangeSupport.PROP_ENTITY_REMOVED;
 
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.filter.v1_1.OGCConfiguration;
@@ -76,6 +78,7 @@ import org.polymap.core.data.FeatureChangeListener;
 import org.polymap.core.data.PipelineFeatureSource;
 import org.polymap.core.data.ui.featuretable.DefaultFeatureTableColumn;
 import org.polymap.core.data.ui.featuretable.FeatureTableViewer;
+import org.polymap.core.data.ui.featuretable.IFeatureTableColumn;
 import org.polymap.core.data.ui.featuretable.IFeatureTableElement;
 import org.polymap.core.geohub.LayerFeatureSelectionManager;
 import org.polymap.core.project.ILayer;
@@ -170,7 +173,10 @@ public class FeatureSelectionView
 
     private Filter                  filter = Filter.EXCLUDE;
 
-    /** Might be null if fs could not be instantiated for the layer */
+    /**
+     * Might be null if fs could not be instantiated for the layer or if there are no
+     * displayable properties.
+     */
     private FeatureTableViewer      viewer;
 
     private String                  basePartName;
@@ -384,6 +390,26 @@ public class FeatureSelectionView
             msg.setText( "No feature pipeline for layer: " + (layer != null ? layer.getLabel() : "???") );
             return;
         }
+        
+        // columns
+        assert fs != null : "fs not set. Call init() first.";
+        SimpleFeatureType schema = fs.getSchema();
+        List<IFeatureTableColumn> columns = new ArrayList();
+        for (PropertyDescriptor prop : schema.getDescriptors()) {
+            if (Geometry.class.isAssignableFrom( prop.getType().getBinding() )) {
+                // skip Geometry
+            }
+            else {
+                columns.add( new DefaultFeatureTableColumn( prop ) );
+            }
+        }
+
+        // no cols? -> message
+        if (columns.isEmpty()) {
+            Label msg = new Label( parent, SWT.NONE );
+            msg.setText( "No attributes in layer!" );
+            return;            
+        }
 
         viewer = new FeatureTableViewer( parent, SWT.MULTI );
         viewer.getTable().setLayoutData( new SimpleFormData().fill().create() );
@@ -410,17 +436,9 @@ public class FeatureSelectionView
         });
         
         // columns
-        assert fs != null : "fs not set. Call init() first.";
-        SimpleFeatureType schema = fs.getSchema();
-        for (PropertyDescriptor prop : schema.getDescriptors()) {
-            if (Geometry.class.isAssignableFrom( prop.getType().getBinding() )) {
-                // skip Geometry
-            }
-            else {
-                viewer.addColumn( new DefaultFeatureTableColumn( prop ) );
-            }
+        for (IFeatureTableColumn column : columns) {
+            viewer.addColumn( column );
         }
-
         viewer.getTable().pack( true );
 
         getSite().setSelectionProvider( viewer );
@@ -454,8 +472,10 @@ public class FeatureSelectionView
 
 
     protected void loadTable( @SuppressWarnings("hiding") Filter filter ) {
-        this.filter = filter;
-        viewer.setContent( fs, filter );
+        if (viewer != null) {
+            this.filter = filter;
+            viewer.setContent( fs, filter );
+        }
     }
 
     

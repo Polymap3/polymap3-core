@@ -1,7 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2009, Polymap GmbH, and individual contributors as indicated
- * by the @authors tag.
+ * Copyright 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -12,13 +11,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- *
- * $Id$
  */
 package org.polymap.core.catalog.actions;
 
@@ -39,12 +31,13 @@ import org.eclipse.ui.internal.dialogs.PropertyDialog;
 import org.eclipse.ui.internal.dialogs.PropertyPageContributorManager;
 
 import org.polymap.core.catalog.model.CatalogImpl;
+import org.polymap.core.catalog.model.CatalogRepository;
 import org.polymap.core.model.security.ACL;
 
 /**
  * 
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  * @since 3.0
  */
 @SuppressWarnings("restriction")
@@ -57,6 +50,7 @@ public class PropertyDialogAction
     private IStructuredSelection    selection;
 
 
+    @Override
     public void setActivePart( IAction action, IWorkbenchPart targetPart ) {
         this.part = targetPart;
     }
@@ -83,31 +77,34 @@ public class PropertyDialogAction
      * @since 3.1
      */
     public PreferenceDialog createDialog() {
-        Object element = selection.getFirstElement();
-        if (element == null) {
+        Object elm = selection.getFirstElement();
+        if (elm == null) {
             return null;
         }
 
         // XXX I don't seem to be able to figure out how to adapt IService to
         // ACL without this hack
         ACL acl = null;
-        if (element instanceof CatalogImpl) {
-            acl = (ACL)((CatalogImpl)element).getAdapter( ACL.class );
+        if (elm instanceof CatalogImpl) {
+            acl = (ACL)((CatalogImpl)elm).getAdapter( ACL.class );
         }
-        else if (element instanceof IService) {
-            acl = (ACL)((IService)element).getAdapter( ACL.class );
+        else if (elm instanceof IService) {
+//          acl = (ACL)((IService)elm).getAdapter( ACL.class );
+
+            CatalogRepository module = CatalogRepository.instance();
+            acl = (ACL)module.getCatalog().findServiceEntity( (IService)elm );
         }
         else {
-            throw new IllegalStateException( "Unknow element type: " + element.getClass() );
+            throw new IllegalStateException( "Unknow element type: " + elm.getClass() );
         }
         
         Shell shell = part.getSite().getShell();
         String initialPageId = null;
-        return PropertyDialog.createDialogOn( shell, initialPageId, acl);
+        return PropertyDialog.createDialogOn( shell, initialPageId, acl );
     }
-
     
 
+    @Override
     public void runWithEvent( IAction action, Event ev ) {
         PreferenceDialog dialog = createDialog();
         if (dialog != null) {
@@ -129,6 +126,7 @@ public class PropertyDialogAction
     }
 
 
+    @Override
     public void selectionChanged( IAction action, ISelection s ) {
         if (s instanceof IStructuredSelection) {
             selection = (IStructuredSelection)s;
