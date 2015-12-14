@@ -66,6 +66,8 @@ import org.polymap.core.project.LayerUseCase;
 import org.polymap.core.runtime.LazyInit;
 import org.polymap.core.runtime.PlainLazyInit;
 import org.polymap.core.runtime.SessionContext;
+
+import org.polymap.service.IProvidedService;
 import org.polymap.service.http.MapHttpServer;
 
 /**
@@ -102,8 +104,8 @@ public class SimpleWmsServer
     }
 
     
-    public void init( IMap _map ) {
-        super.init( _map );
+    public void init( IMap _map, IProvidedService _service ) {
+        super.init( _map, _service );
         this.sessionContext = SessionContext.current();
     }
 

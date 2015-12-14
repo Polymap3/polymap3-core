@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Platform;
 import org.polymap.core.CorePlugin;
 import org.polymap.core.project.IMap;
 
+import org.polymap.service.IProvidedService;
 import org.polymap.service.ServicesPlugin;
 
 /**
@@ -88,7 +89,7 @@ public class MapHttpServerFactory {
      *        for the same pathSpec.
      * @return The newly created server.
      */
-    public static MapHttpServer createWMS( IMap map, String pathSpec, boolean forceUnregister )
+    public static MapHttpServer createWMS( IMap map, IProvidedService service, String pathSpec, boolean forceUnregister )
             throws Exception {
         if (wmsExt == null) {
             throw new IllegalStateException( "No WMS service extension found." );
@@ -119,7 +120,7 @@ public class MapHttpServerFactory {
                     throw e;
                 }
             }
-            wmsServer.init( map );
+            wmsServer.init( map, service );
             
             return wmsServer;
         }

@@ -46,6 +46,7 @@ import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.ServiceException;
@@ -125,7 +126,7 @@ public class GeoServerLoader
     private static final Log log = LogFactory.getLog( GeoServerLoader.class );
 
     /** The namespace of all features delivered via GeoServer. */
-    public static final String  NAMESPACE = "http://www.polymap.org/";
+    public static final String      NAMESPACE = "http://www.polymap.org/";
     
     
     private GeoServerResourceLoader resourceLoader;
@@ -272,8 +273,7 @@ public class GeoServerLoader
     }
 
 
-    protected void loadCatalog( Catalog catalog, IMap map ) 
-    throws PipelineIncubationException, IOException {
+    protected void loadCatalog( Catalog catalog, IMap map ) throws PipelineIncubationException, IOException {
         log.debug( "Loading catalog..." );
         
         WorkspaceInfoImpl wsInfo = new WorkspaceInfoImpl();
@@ -495,26 +495,29 @@ public class GeoServerLoader
         geoserver.setGlobal( gsInfo );
         log.debug( "    loaded GeoServer: '" + gsInfo.getTitle() +"'");
 
-//        // FIXME configure allowed EPSG codes
-//        List<String> srs = new ArrayList();
-//        srs.add( "EPSG:31468" );
-//        srs.add( "EPSG:4326" );
+        ContactInfoImpl contact = new ContactInfoImpl();
+        contact.setContactPerson( "Uwe Weigel" );
+        gsInfo.setContact( contact );
+        
+        // EPSG codes
+        List<String> srs = service.getService().getSRS();
 
         // WMS
         WMSInfoImpl wms = new WMSInfoImpl();
         wms.setGeoServer( geoserver );
         wms.setId( simpleName( map.getLabel() ) + "-wms" );
-        wms.setMaintainer( "" );
+        wms.setMaintainer( service.getService().getMaintainer() );
         wms.setTitle( simpleName( map.getLabel() ) );
-        wms.setAbstract( "POLYMAP3 (polymap.org) powered by GeoServer (geoserver.org)." );
+        wms.setAbstract( service.getService().getDescription() );
         wms.setName( simpleName( map.getLabel() ) );
         // XXX
         //wms.setOnlineResource( "http://localhost:10080/services/Atlas" );
         //wms.setSchemaBaseURL( )
         wms.setOutputStrategy( "SPEED" );
-        
-        // XXX make this configurable; deliver all known EPSG codes for now :)
-//        wms.setSRS( srs );
+
+        if (!srs.isEmpty()) {
+            wms.setSRS( srs );
+        }
         List<Version> versions = new ArrayList();
         versions.add( new Version( "1.1.1" ) );
         versions.add( new Version( "1.3" ) );

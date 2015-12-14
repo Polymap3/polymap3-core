@@ -1,10 +1,10 @@
 /* 
  * polymap.org
- * Copyright 2009-2012, Polymap GmbH. All rights reserved.
+ * Copyright 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
+ * published by the Free Software Foundation; either version 3.0 of
  * the License, or (at your option) any later version.
  *
  * This software is distributed in the hope that it will be useful,
@@ -23,8 +23,7 @@ import org.polymap.core.project.IMap;
 /**
  * 
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @since 3.0
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public interface IProvidedService
         extends Entity {
@@ -33,6 +32,9 @@ public interface IProvidedService
     public static final String  PROP_SRS = "SRS";
     public static final String  PROP_SERVICE_TYPE = "SERVICE_TYPE";
     public static final String  PROP_ENABLED = "ENABLED";
+    public static final String  PROP_DESCRIPTION = "DESCRIPTION";
+    public static final String  PROP_NAMESPACE = "NAMESPACE";
+    public static final String  PROP_MAINTAINER = "MAINTAINER";
 
     public boolean isEnabled();
     
@@ -45,6 +47,21 @@ public interface IProvidedService
     
     @ModelProperty(PROP_PATHSPEC)
     public void setPathSpec( String url );
+    
+    public String getDescription();
+    
+    @ModelProperty(PROP_DESCRIPTION)
+    public void setDescription( String description );
+    
+    public String getMaintainer();
+    
+    @ModelProperty(PROP_MAINTAINER)
+    public void setMaintainer( String maintainer );
+    
+    public String getNamespace();
+    
+    @ModelProperty(PROP_NAMESPACE)
+    public void setNamespace( String namespace );
     
     public String getMapId();
 

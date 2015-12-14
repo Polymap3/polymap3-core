@@ -1,6 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2009-2012, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -19,35 +19,40 @@ import javax.servlet.http.HttpServlet;
 import org.polymap.core.CorePlugin;
 import org.polymap.core.project.IMap;
 
+import org.polymap.service.IProvidedService;
+
 /**
  * Base class for {@link IMap} based services, such as WMS or WFS.
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @since 3.1
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public abstract class MapHttpServer
         extends HttpServlet {
 
     protected IMap              map;
     
+    protected IProvidedService  service;
+    
     
     public MapHttpServer() {
     }
 
-    
-    protected void init( IMap _map ) {
+    protected void init( IMap _map, IProvidedService _service ) {
         assert _map != null;
         this.map = _map;
+        this.service = _service;
     }
-
 
     public String getPathSpec() {
         return CorePlugin.servletAlias( this );
     }
     
-    
     public IMap getMap() {
         return map;
+    }
+
+    public IProvidedService getService() {
+        return service;
     }
 
 }

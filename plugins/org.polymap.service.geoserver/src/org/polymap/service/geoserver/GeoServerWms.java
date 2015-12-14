@@ -1,10 +1,10 @@
 /* 
  * polymap.org
- * Copyright 2009-2012 Polymap GmbH. All rights reserved.
+ * Copyright (C) 2009-2015 Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
+ * published by the Free Software Foundation; either version 3.0 of
  * the License, or (at your option) any later version.
  *
  * This software is distributed in the hope that it will be useful,
@@ -48,6 +48,7 @@ import org.polymap.core.project.IMap;
 import org.polymap.core.runtime.SessionContext;
 import org.polymap.core.runtime.Stringer;
 
+import org.polymap.service.IProvidedService;
 import org.polymap.service.ServiceContext;
 import org.polymap.service.geoserver.spring.PipelineMapProducer;
 import org.polymap.service.http.MapHttpServer;
@@ -55,8 +56,7 @@ import org.polymap.service.http.MapHttpServer;
 /**
  * 
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @since 3.0
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class GeoServerWms
         extends MapHttpServer {
@@ -88,8 +88,8 @@ public class GeoServerWms
     }
 
 
-    protected void init( IMap _map ) {
-        super.init( _map );
+    protected void init( IMap _map, IProvidedService _service ) {
+        super.init( _map, _service );
         try {
             sessionKey = SessionContext.current().getSessionKey();
             initGeoServer();
@@ -172,19 +172,19 @@ public class GeoServerWms
             dispatcher = new DispatcherServlet();
             log.debug( "Dispatcher: " + dispatcher.getClass().getClassLoader() );
             dispatcher.init( new ServletConfig() {
-
+                @Override
                 public String getInitParameter( String name ) {
                     return GeoServerWms.this.getInitParameter( name );
                 }
-
+                @Override
                 public Enumeration getInitParameterNames() {
                     return GeoServerWms.this.getInitParameterNames();
                 }
-
+                @Override
                 public ServletContext getServletContext() {
                     return context;
                 }
-
+                @Override
                 public String getServletName() {
                     return "dispatcher";
                 }

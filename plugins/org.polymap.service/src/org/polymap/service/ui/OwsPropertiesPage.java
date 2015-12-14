@@ -1,6 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2010-2012, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2010-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -20,25 +20,28 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
-
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.window.Window;
 
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.dialogs.AdaptableForwarder;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IAdaptable;
 
+import org.polymap.core.data.util.Geometries;
 import org.polymap.core.model.security.ACL;
 import org.polymap.core.model.security.ACLUtils;
 import org.polymap.core.model.security.AclPermission;
@@ -55,13 +58,14 @@ import org.polymap.service.ServiceRepository;
 import org.polymap.service.ServicesPlugin;
 import org.polymap.service.model.operations.NewServiceOperation;
 
+import net.refractions.udig.ui.CRSChooserDialog;
+
 /**
  * Properties of OWS services of an {@link IMap}.
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @version POLYMAP3 ($Revision$)
- * @since 3.0
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
+@SuppressWarnings("restriction")
 public class OwsPropertiesPage 
         extends FieldEditorPreferencePage
         implements IWorkbenchPropertyPage {
@@ -80,9 +84,11 @@ public class OwsPropertiesPage
         setDescription( Messages.get( "OwsPropertiesPage_description", ServicesPlugin.getDefault().getServicesBaseUrl() ) );
     }
 
+    
     @Override
-    @SuppressWarnings("restriction")
     protected Control createContents( Composite parent ) {
+        noDefaultAndApplyButton();
+        
         // XXX see PropertyDialogAction for more detail
         final ACL acl = getElement() instanceof AdaptableForwarder
                 ? (ACL)((AdaptableForwarder)getElement()).getAdapter( ACL.class )
@@ -99,10 +105,12 @@ public class OwsPropertiesPage
         }
     }
 
+    
     public IAdaptable getElement() {
         return map;
     }
 
+    
     public void setElement( IAdaptable element ) {
         log.info( "element= " + element );
         map = (IMap)element;
@@ -140,10 +148,13 @@ public class OwsPropertiesPage
         store.setDefault( "WMS", providedService.isEnabled() );
         store.setDefault( "WFS", false );
         store.setDefault( IProvidedService.PROP_PATHSPEC, providedService.getPathSpec() );
-        store.setDefault( IProvidedService.PROP_SRS, StringUtils.join( providedService.getSRS(), ", " ) );
+        store.setDefault( IProvidedService.PROP_NAMESPACE, providedService.getNamespace() );
+        store.setDefault( IProvidedService.PROP_MAINTAINER, providedService.getMaintainer() );
+        store.setDefault( IProvidedService.PROP_DESCRIPTION, providedService.getDescription() );
+        store.setDefault( IProvidedService.PROP_SRS, StringUtils.join( providedService.getSRS(), "," ) );
         
-        Composite pathParent = getFieldEditorParent();
         Composite uriParent = getFieldEditorParent();
+        final Composite pathParent = getFieldEditorParent();
 
         // URI
         final StringFieldEditor uriField = new StringFieldEditor( "URI", "URI*", uriParent );
@@ -153,8 +164,8 @@ public class OwsPropertiesPage
         uriField.setEnabled( false, uriParent );
 
         // service path
-        StringFieldEditor pathField = new StringFieldEditor(
-                IProvidedService.PROP_PATHSPEC, "Service Name/Pfad", pathParent ) {
+        StringFieldEditor pathField = new StringFieldEditor2(
+                IProvidedService.PROP_PATHSPEC, "Service Name/Pfad*", "Der Name/Pfad, unter dem der Service erreichbar ist.\nBeginnend mit einem \"/\".", pathParent ) {
 
             protected boolean doCheckState() {
                 String value = getStringValue();
@@ -180,14 +191,45 @@ public class OwsPropertiesPage
                 "WFS", "WFS aktivieren", getFieldEditorParent() );
 //        wfsField.setEnabled( false, getFieldEditorParent() );
 
-        // SRS
-//        Composite parent = getFieldEditorParent();
-//        StringFieldEditor srsField = new StringFieldEditor(
-//                IProvidedService.PROP_SRS, "Koordinatensysteme*", parent );
-//        srsField.getLabelControl( parent )
-//                .setToolTipText( "Komma-separierte Liste mit EPSG-Codes: EPSG:31468, EPSG:4326, ..." );
-//        addField( srsField );
+        // maintainer
+        addField( new StringFieldEditor( IProvidedService.PROP_MAINTAINER, "Verantwortlich", pathParent ) );
 
+        // description
+        //    MultiLineTextFieldEditor descriptionField = new MultiLineTextFieldEditor(
+        addField( new StringFieldEditor2( IProvidedService.PROP_DESCRIPTION, 
+                "Beschreibung*", "Eine kurze Beschreibung des Dienstes", pathParent ) );
+
+        // SRS
+        ListEditor srsField = new ListEditor( IProvidedService.PROP_SRS, "Referenzsysteme", pathParent ) {
+            @Override
+            protected void doFillIntoGrid( Composite parent, int numColumns ) {
+                super.doFillIntoGrid( parent, numColumns );
+                GridData gd = (GridData)getListControl( parent ).getLayoutData();
+                gd.grabExcessHorizontalSpace = false;
+                gd.widthHint = 50;
+            }
+            @Override
+            protected String[] parseString( String stringList ) {
+                return StringUtils.split( stringList, "," );
+            }
+            @Override
+            protected String getNewInputObject() {
+                CRSChooserDialog dialog = new CRSChooserDialog( getShell(), null );
+                dialog.setBlockOnOpen( true );
+                if (dialog.open() == Window.OK) {
+                    return Geometries.srs( dialog.getResult() );
+                }
+                else {
+                    return null;
+                }
+            }
+            @Override
+            protected String createList( String[] items ) {
+                return StringUtils.join( items, "," );
+            }
+        };
+        addField( srsField );
+        
         // load default values
         performDefaults();
     }
@@ -199,26 +241,21 @@ public class OwsPropertiesPage
 
         try {
             IPreferenceStore store = getPreferenceStore();
+    
+            storeString( store, IProvidedService.PROP_PATHSPEC );
+            storeString( store, IProvidedService.PROP_DESCRIPTION );
+            storeString( store, IProvidedService.PROP_NAMESPACE );
+            storeString( store, IProvidedService.PROP_MAINTAINER );
             
             if (!store.isDefault( "WMS" )) {
-                Boolean value = store.getBoolean( "WMS" );
-                log.info( "    value: " + value );
+                boolean value = store.getBoolean( "WMS" );
                 SetPropertyOperation op = new SetPropertyOperation();
                 op.init( IProvidedService.class, providedService, IProvidedService.PROP_ENABLED, value );
                 OperationSupport.instance().execute( op, false, false );
             }
             
-            if (!store.isDefault( IProvidedService.PROP_PATHSPEC )) {
-                String value = store.getString( IProvidedService.PROP_PATHSPEC );
-                log.info( "    value: " + value );
-                SetPropertyOperation op = new SetPropertyOperation();
-                op.init( IProvidedService.class, providedService, IProvidedService.PROP_PATHSPEC, value );
-                OperationSupport.instance().execute( op, false, false );
-            }
-            
             if (!store.isDefault( IProvidedService.PROP_SRS )) {
                 String value = store.getString( IProvidedService.PROP_SRS );
-                log.info( "    value: " + value );
                 List<String> srs = Arrays.asList( StringUtils.split( value, ", " ) ); 
                 SetPropertyOperation op = new SetPropertyOperation();
                 op.init( IProvidedService.class, providedService, IProvidedService.PROP_SRS, srs );
@@ -241,6 +278,17 @@ public class OwsPropertiesPage
         catch (Exception e) {
             PolymapWorkbench.handleError( ServicesPlugin.PLUGIN_ID, this, "Fehler beim Speichern der Einstellungen.", e );
             return false;
+        }
+    }
+    
+    
+    protected void storeString( IPreferenceStore store, String propName ) throws ExecutionException {
+        if (!store.isDefault( propName )) {
+            Object value = store.getString( propName );
+            log.info( "    value: " + value );
+            SetPropertyOperation op = new SetPropertyOperation();
+            op.init( IProvidedService.class, providedService, propName, value );
+            OperationSupport.instance().execute( op, false, false );
         }
     }
 

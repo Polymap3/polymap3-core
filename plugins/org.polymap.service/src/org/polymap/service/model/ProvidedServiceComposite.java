@@ -62,6 +62,17 @@ public interface ProvidedServiceComposite
     @Optional
     Property<String>                    pathSpec();
   
+    @Optional
+    Property<String>                    namespace();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    maintainer();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    description();
+  
     /** One of the <code>SERVICE_TYPE_xxx</code> constants in {@link ServicesPlugin}. */
     @Optional
     Property<String>                    serviceType();
@@ -88,8 +99,7 @@ public interface ProvidedServiceComposite
 
         @This ProvidedServiceComposite      composite;
 
-        private transient MapHttpServer    wms;
-        
+        private transient MapHttpServer     wms;
         
         public boolean isEnabled() {
             return enabled().get();
@@ -120,6 +130,31 @@ public interface ProvidedServiceComposite
             pathSpec().set( url );
         }
 
+        public String getDescription() {
+            return description().get();
+        }
+
+        public void setDescription( String description ) {
+            description().set( description );
+        }
+
+        public String getMaintainer() {
+            return maintainer().get();
+        }
+
+        public void setMaintainer( String maintainer ) {
+            maintainer().set( maintainer );
+        }
+
+        public String getNamespace() {
+            String result = namespace().get();
+            return result != null ? result : "polymap";
+        }
+
+        public void setNamespace( String namespace ) {
+            namespace().set( namespace );
+        }
+
         public String getServiceType() {
             return serviceType().get();
         }
@@ -142,8 +177,7 @@ public interface ProvidedServiceComposite
         }
 
         
-        public void start() 
-        throws Exception {
+        public void start() throws Exception {
 //            assert wms == null : "Service is started already.";
             // services are started outside a request
             IMap map = ProjectRepository.instance().findEntity( IMap.class, mapId().get() );
@@ -155,7 +189,7 @@ public interface ProvidedServiceComposite
                 pathSpec = ServicesPlugin.validPathSpec( map.getLabel() );
             }
 
-            wms = MapHttpServerFactory.createWMS( map, pathSpec, true );
+            wms = MapHttpServerFactory.createWMS( map, composite, pathSpec, true );
             log.info( "        service URL: " + wms.getPathSpec() );
         }
 
