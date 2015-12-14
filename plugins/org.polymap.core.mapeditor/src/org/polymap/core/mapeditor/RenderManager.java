@@ -255,7 +255,7 @@ public class RenderManager {
 
             // use our own WMS impl
             SimpleWmsServer result = new SimpleWmsServer();
-            result.init( map );
+            result.init( map, null );
 
             try {
                 CorePlugin.registerServlet( pathSpec, result, null );
