@@ -62,6 +62,8 @@ import net.refractions.udig.ui.CRSChooserDialog;
 
 /**
  * Properties of OWS services of an {@link IMap}.
+ * <p/>
+ * XXX This depends on GeoServer which supports WMS and WFS in the same server.
  *
  * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
@@ -149,9 +151,16 @@ public class OwsPropertiesPage
         store.setDefault( "WFS", false );
         store.setDefault( IProvidedService.PROP_PATHSPEC, providedService.getPathSpec() );
         store.setDefault( IProvidedService.PROP_NAMESPACE, providedService.getNamespace() );
-        store.setDefault( IProvidedService.PROP_MAINTAINER, providedService.getMaintainer() );
         store.setDefault( IProvidedService.PROP_DESCRIPTION, providedService.getDescription() );
         store.setDefault( IProvidedService.PROP_SRS, StringUtils.join( providedService.getSRS(), "," ) );
+        store.setDefault( IProvidedService.PROP_CONTACT_PERSON, providedService.getContactPerson() );
+        store.setDefault( IProvidedService.PROP_CONTACT_ORG, providedService.getContactOrg() );
+        store.setDefault( IProvidedService.PROP_CONTACT_EMAIL, providedService.getContactEmail() );
+        store.setDefault( IProvidedService.PROP_CONTACT_VOICE, providedService.getContactVoice() );
+        store.setDefault( IProvidedService.PROP_ADDRESS, providedService.getAddress() );
+        store.setDefault( IProvidedService.PROP_ADDRESS_CITY, providedService.getAddressCity() );
+        store.setDefault( IProvidedService.PROP_ADDRESS_COUNTRY, providedService.getAddressCountry() );
+        store.setDefault( IProvidedService.PROP_ADDRESS_POSTALCODE, providedService.getAddressPostalcode() );
         
         Composite uriParent = getFieldEditorParent();
         final Composite pathParent = getFieldEditorParent();
@@ -191,13 +200,29 @@ public class OwsPropertiesPage
                 "WFS", "WFS aktivieren", getFieldEditorParent() );
 //        wfsField.setEnabled( false, getFieldEditorParent() );
 
-        // maintainer
-        addField( new StringFieldEditor( IProvidedService.PROP_MAINTAINER, "Verantwortlich", pathParent ) );
-
         // description
         //    MultiLineTextFieldEditor descriptionField = new MultiLineTextFieldEditor(
         addField( new StringFieldEditor2( IProvidedService.PROP_DESCRIPTION, 
                 "Beschreibung*", "Eine kurze Beschreibung des Dienstes", pathParent ) );
+
+        // contact
+        addField( new StringFieldEditor2( IProvidedService.PROP_CONTACT_PERSON, 
+                "Verantwortlich*", "Verantwortliche Person für diesen Service", pathParent ) );
+        addField( new StringFieldEditor2( IProvidedService.PROP_CONTACT_ORG, 
+                "Organisation*", "Verantwortliche Organisation", pathParent ) );
+        addField( new StringFieldEditor2( IProvidedService.PROP_CONTACT_EMAIL, 
+                "E-Mail", "", pathParent ) );
+        addField( new StringFieldEditor2( IProvidedService.PROP_CONTACT_VOICE, 
+                "Telefon", "", pathParent ) );
+
+        addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS_COUNTRY, 
+                "Adresse, Land*", "", pathParent ) );
+        addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS_CITY, 
+                "Stadt", "", pathParent ) );
+        addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS_POSTALCODE, 
+                "PLZ", "", pathParent ) );
+        addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS, 
+                "Strasse, Nr.", "", pathParent ) );
 
         // SRS
         ListEditor srsField = new ListEditor( IProvidedService.PROP_SRS, "Referenzsysteme", pathParent ) {
@@ -245,7 +270,16 @@ public class OwsPropertiesPage
             storeString( store, IProvidedService.PROP_PATHSPEC );
             storeString( store, IProvidedService.PROP_DESCRIPTION );
             storeString( store, IProvidedService.PROP_NAMESPACE );
-            storeString( store, IProvidedService.PROP_MAINTAINER );
+
+            storeString( store, IProvidedService.PROP_CONTACT_EMAIL );
+            storeString( store, IProvidedService.PROP_CONTACT_ORG );
+            storeString( store, IProvidedService.PROP_CONTACT_PERSON );
+            storeString( store, IProvidedService.PROP_CONTACT_VOICE );
+            
+            storeString( store, IProvidedService.PROP_ADDRESS );
+            storeString( store, IProvidedService.PROP_ADDRESS_CITY );
+            storeString( store, IProvidedService.PROP_ADDRESS_COUNTRY );
+            storeString( store, IProvidedService.PROP_ADDRESS_POSTALCODE );
             
             if (!store.isDefault( "WMS" )) {
                 boolean value = store.getBoolean( "WMS" );

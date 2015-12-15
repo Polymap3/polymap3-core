@@ -495,18 +495,33 @@ public class GeoServerLoader
         geoserver.setGlobal( gsInfo );
         log.debug( "    loaded GeoServer: '" + gsInfo.getTitle() +"'");
 
+        // contact info
         ContactInfoImpl contact = new ContactInfoImpl();
-        contact.setContactPerson( "Uwe Weigel" );
+        contact.setAddressCity( service.getService().getAddressCity() );
+        contact.setAddressCountry( service.getService().getAddressCountry() );
+        contact.setAddressPostalCode( service.getService().getAddressPostalcode() );
+        contact.setAddress( service.getService().getAddress() );
+        
+        contact.setContactPerson( service.getService().getContactPerson() );
+        contact.setContactOrganization( service.getService().getContactOrg() );
+        contact.setContactEmail( service.getService().getContactEmail() );
+        contact.setContactVoice( service.getService().getContactVoice() );
         gsInfo.setContact( contact );
+        
+        loadWms( service );
+        loadWfs( service );
+    }
+    
+    
+    protected void loadWms( GeoServerWms service ) {
+        IMap map = service.getMap();
         
         // EPSG codes
         List<String> srs = service.getService().getSRS();
 
-        // WMS
         WMSInfoImpl wms = new WMSInfoImpl();
         wms.setGeoServer( geoserver );
         wms.setId( simpleName( map.getLabel() ) + "-wms" );
-        wms.setMaintainer( service.getService().getMaintainer() );
         wms.setTitle( simpleName( map.getLabel() ) );
         wms.setAbstract( service.getService().getDescription() );
         wms.setName( simpleName( map.getLabel() ) );
@@ -524,39 +539,35 @@ public class GeoServerLoader
         wms.setVersions( versions );
         geoserver.add( wms );
         log.debug( "    loaded WMS: '" + wms.getTitle() +"'");
+    }
+
+    
+    protected void loadWfs( GeoServerWms service ) {
+        IMap map = service.getMap();
         
-        // WFS
         WFSInfoImpl wfs = new WFSInfoImpl();
         wfs.setGeoServer( geoserver );
         // XXX make this configurable (where to get authentication from when TRANSACTIONAL?)
         wfs.setServiceLevel( ServiceLevel.BASIC );
         wfs.setId( simpleName( map.getLabel() ) + "-wfs" );
-        wfs.setMaintainer( "" );
         wfs.setTitle( simpleName( map.getLabel() ) );
         wfs.setName( simpleName( map.getLabel() ) + "-wfs" );
+        wfs.setAbstract( service.getService().getDescription() );
+        
         // XXX
         //wfs.setOnlineResource( "http://localhost:10080/services/Atlas" );
         wfs.setOutputStrategy( "SPEED" );
-//        wfs.set( srs );
-//        List<Version> versions = new ArrayList();
-//        versions.add( new Version( "1.1.1" ) );
-//        versions.add( new Version( "1.3" ) );
-//        wfs.setVersions( versions );
-        
+        //wfs.setVerbose( true );
+
         // GML2
         GMLInfo gml = new GMLInfoImpl();
-        Boolean srsXmlStyle = true;
-        if (srsXmlStyle) {
-            gml.setSrsNameStyle( SrsNameStyle.XML );    
-        }
-        else {
-            gml.setSrsNameStyle( SrsNameStyle.NORMAL );
-        }
+        gml.setSrsNameStyle( SrsNameStyle.XML );    
+        //gml.setSrsNameStyle( SrsNameStyle.NORMAL );
         wfs.getGML().put( WFSInfo.Version.V_10 , gml );
         
         //GML3
         gml = new GMLInfoImpl();
-        gml.setSrsNameStyle(SrsNameStyle.URN);
+        gml.setSrsNameStyle( SrsNameStyle.URN );
         wfs.getGML().put( WFSInfo.Version.V_11 , gml );
         wfs.getVersions().add( new Version( "1.0.0" ) );
         wfs.getVersions().add( new Version( "1.1.0" ) );

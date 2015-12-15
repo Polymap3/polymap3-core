@@ -37,9 +37,7 @@ import org.polymap.service.ui.GeneralPreferencePage;
 /**
  * The activator class controls the plug-in life cycle
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @version POLYMAP3 ($Revision$)
- * @since 3.0
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 public class ServicesPlugin 
         extends AbstractUIPlugin {

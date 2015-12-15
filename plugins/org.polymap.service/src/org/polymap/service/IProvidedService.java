@@ -34,8 +34,18 @@ public interface IProvidedService
     public static final String  PROP_ENABLED = "ENABLED";
     public static final String  PROP_DESCRIPTION = "DESCRIPTION";
     public static final String  PROP_NAMESPACE = "NAMESPACE";
-    public static final String  PROP_MAINTAINER = "MAINTAINER";
+    
+    public static final String  PROP_ADDRESS_CITY = "ADDRESS_CITY";
+    public static final String  PROP_ADDRESS_COUNTRY = "ADDRESS_COUNTRY";
+    public static final String  PROP_ADDRESS_POSTALCODE = "ADDRESS_POSTALCODE";
+    public static final String  PROP_ADDRESS = "ADDRESS";
 
+    public static final String  PROP_CONTACT_PERSON = "CONTACT_PERSON";
+    public static final String  PROP_CONTACT_ORG = "CONTACT_ORG";
+    public static final String  PROP_CONTACT_VOICE = "CONTACT_VOICE";
+    public static final String  PROP_CONTACT_EMAIL = "CONTACT_EMAIL";
+
+    
     public boolean isEnabled();
     
     public boolean isStarted();
@@ -53,10 +63,50 @@ public interface IProvidedService
     @ModelProperty(PROP_DESCRIPTION)
     public void setDescription( String description );
     
-    public String getMaintainer();
+    // address ********************************************
     
-    @ModelProperty(PROP_MAINTAINER)
-    public void setMaintainer( String maintainer );
+    public String getAddressCity();
+    
+    @ModelProperty(PROP_ADDRESS_CITY)
+    public void setAddressCity( String value );
+    
+    public String getAddressCountry();
+    
+    @ModelProperty(PROP_ADDRESS_COUNTRY)
+    public void setAddressCountry( String value );
+    
+    public String getAddressPostalcode();
+    
+    @ModelProperty(PROP_ADDRESS_POSTALCODE)
+    public void setAddressPostalcode( String value );
+    
+    public String getAddress();
+    
+    @ModelProperty(PROP_ADDRESS)
+    public void setAdress( String value );
+    
+    // contact ********************************************
+    
+    public String getContactPerson();
+    
+    @ModelProperty(PROP_CONTACT_PERSON)
+    public void setContactPerson( String value );
+    
+    public String getContactOrg();
+    
+    @ModelProperty(PROP_CONTACT_ORG)
+    public void setContactOrg( String value );
+    
+    public String getContactEmail();
+    
+    @ModelProperty(PROP_CONTACT_EMAIL)
+    public void setContactEmail( String value );
+    
+    public String getContactVoice();
+    
+    @ModelProperty(PROP_CONTACT_VOICE)
+    public void setContactVoice( String value );
+    
     
     public String getNamespace();
     
@@ -68,20 +118,20 @@ public interface IProvidedService
     public IMap getMap();
 
     /**
-     * The type of this service.
+     * The type(s) of this service.
      * 
-     * @return One of the <code>SERVICE_TYPE_xxx</code> constants in
-     *         {@link ServicesPlugin}.
+     * @return One of {@link ServicesPlugin#SERVICE_TYPE_WMS}, {@link ServicesPlugin#SERVICE_TYPE_WFS}.
      */
     public String getServiceType();
 
     /**
      * 
-     * 
-     * @param serviceType One of the <code>SERVICE_TYPE_xxx</code> constants in
-     *        {@link ServicesPlugin}.
+     * @param One of {@link ServicesPlugin#SERVICE_TYPE_WMS}, {@link ServicesPlugin#SERVICE_TYPE_WFS}.
      */
     public boolean isServiceType( String serviceType );
+
+//    @ModelProperty(PROP_SERVICE_TYPE)
+//    public void setServiceTypes( List<String> serviceTypes );
     
     public List<String> getSRS();
     

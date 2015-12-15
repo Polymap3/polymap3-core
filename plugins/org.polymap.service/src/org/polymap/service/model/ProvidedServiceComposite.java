@@ -1,10 +1,10 @@
 /* 
  * polymap.org
- * Copyright 2009-2012, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2009-2015, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
+ * published by the Free Software Foundation; either version 3.0 of
  * the License, or (at your option) any later version.
  *
  * This software is distributed in the hope that it will be useful,
@@ -40,8 +40,7 @@ import org.polymap.service.http.MapHttpServer;
 /**
  * 
  *
- * @author <a href="http://www.polymap.de">Falko Braeutigam</a>
- * @since 3.0
+ * @author <a href="http://www.polymap.de">Falko Bräutigam</a>
  */
 @Concerns( {
     PropertyChangeSupport.Concern.class
@@ -67,7 +66,35 @@ public interface ProvidedServiceComposite
   
     @Optional
     @UseDefaults
-    Property<String>                    maintainer();
+    Property<String>                    contactPerson();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    contactOrg();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    contactEmail();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    contactVoice();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    address();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    addressCity();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    addressCountry();
+  
+    @Optional
+    @UseDefaults
+    Property<String>                    addressPostalcode();
   
     @Optional
     @UseDefaults
@@ -138,17 +165,75 @@ public interface ProvidedServiceComposite
             description().set( description );
         }
 
-        public String getMaintainer() {
-            return maintainer().get();
-        }
-
-        public void setMaintainer( String maintainer ) {
-            maintainer().set( maintainer );
-        }
-
         public String getNamespace() {
             String result = namespace().get();
             return result != null ? result : "polymap";
+        }
+
+        // contact / address
+
+        public String getAddressCity() {
+            return addressCity().get();
+        }
+
+        public void setAddressCity( String value ) {
+            addressCity().set( value );
+        }
+
+        public String getAddressCountry() {
+            return addressCountry().get();
+        }
+
+        public void setAddressCountry( String value ) {
+            addressCountry().set( value );
+        }
+
+        public String getAddressPostalcode() {
+            return addressPostalcode().get();
+        }
+
+        public void setAddressPostalcode( String value ) {
+            addressPostalcode().set( value );
+        }
+
+        public String getAddress() {
+            return address().get();
+        }
+
+        public void setAdress( String value ) {
+            address().set( value );
+        }
+
+        public String getContactPerson() {
+            return contactPerson().get();
+        }
+
+        public void setContactPerson( String value ) {
+            contactPerson().set( value );
+        }
+
+        public String getContactOrg() {
+            return contactOrg().get();
+        }
+
+        public void setContactOrg( String value ) {
+            contactOrg().set( value );
+        }
+
+        public String getContactEmail() {
+            return contactEmail().get();
+        }
+
+        public void setContactEmail( String value ) {
+            contactEmail().set( value );
+        }
+
+        public String getContactVoice() {
+            return contactVoice().get();
+        }
+
+        public void setContactVoice( String value ) {
+            contactVoice().set( value );
         }
 
         public void setNamespace( String namespace ) {
