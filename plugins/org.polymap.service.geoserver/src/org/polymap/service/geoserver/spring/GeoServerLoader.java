@@ -507,9 +507,13 @@ public class GeoServerLoader
         contact.setContactEmail( service.getService().getContactEmail() );
         contact.setContactVoice( service.getService().getContactVoice() );
         gsInfo.setContact( contact );
-        
+
+        // XXX always load WMS; mimic old behaviour
         loadWms( service );
-        loadWfs( service );
+        
+        if (service.getService().getFlavours().contains( "WFS" )) {
+            loadWfs( service );
+        }
     }
     
     
@@ -538,7 +542,7 @@ public class GeoServerLoader
         versions.add( new Version( "1.3" ) );
         wms.setVersions( versions );
         geoserver.add( wms );
-        log.debug( "    loaded WMS: '" + wms.getTitle() +"'");
+        log.info( "    WMS loaded: '" + wms.getTitle() +"'");
     }
 
     
@@ -573,7 +577,7 @@ public class GeoServerLoader
         wfs.getVersions().add( new Version( "1.1.0" ) );
         
         geoserver.add( wfs );
-        log.debug( "    loaded WFS: '" + wfs.getTitle() +"'");
+        log.info( "    WFS loaded: '" + wfs.getTitle() +"'");
     }
 
     

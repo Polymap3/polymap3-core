@@ -34,6 +34,7 @@ public interface IProvidedService
     public static final String  PROP_ENABLED = "ENABLED";
     public static final String  PROP_DESCRIPTION = "DESCRIPTION";
     public static final String  PROP_NAMESPACE = "NAMESPACE";
+    public static final String  PROP_FLAVOURS = "FLAVOURS";
     
     public static final String  PROP_ADDRESS_CITY = "ADDRESS_CITY";
     public static final String  PROP_ADDRESS_COUNTRY = "ADDRESS_COUNTRY";
@@ -137,6 +138,11 @@ public interface IProvidedService
     
     @ModelProperty(PROP_SRS)
     public void setSRS( List<String> srs );
+    
+    public List<String> getFlavours();
+    
+    @ModelProperty(PROP_FLAVOURS)
+    public void setFlavours( List<String> flavours );
     
     
     public void start() throws Exception;

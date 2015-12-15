@@ -112,6 +112,10 @@ public interface ProvidedServiceComposite
     @UseDefaults
     Property<List<String>>              srs();
 
+    @Optional
+    @UseDefaults
+    Property<List<String>>              flavours();
+
 
     /**
      * Transient fields and methods. 
@@ -260,8 +264,15 @@ public interface ProvidedServiceComposite
         public void setSRS( List<String> srs ) {
             srs().set( srs );
         }
-
         
+        public List<String> getFlavours() {
+            return flavours().get();
+        }
+
+        public void setFlavours( List<String> flavours ) {
+            flavours().set( flavours );
+        }
+
         public void start() throws Exception {
 //            assert wms == null : "Service is started already.";
             // services are started outside a request

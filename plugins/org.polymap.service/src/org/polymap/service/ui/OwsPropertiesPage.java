@@ -14,6 +14,7 @@
  */
 package org.polymap.service.ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -147,8 +148,10 @@ public class OwsPropertiesPage
             }
         };
         setPreferenceStore( store );
-        store.setDefault( "WMS", providedService.isEnabled() );
-        store.setDefault( "WFS", false );
+        List<String> flavours = providedService.getFlavours();
+        // XXX always load WMS; mimic old behaviour
+        store.setDefault( "WMS", providedService.isEnabled() /* flavours.contains( "WMS" )*/ );
+        store.setDefault( "WFS", flavours.contains( "WFS" ) );
         store.setDefault( IProvidedService.PROP_PATHSPEC, providedService.getPathSpec() );
         store.setDefault( IProvidedService.PROP_NAMESPACE, providedService.getNamespace() );
         store.setDefault( IProvidedService.PROP_DESCRIPTION, providedService.getDescription() );
@@ -164,6 +167,10 @@ public class OwsPropertiesPage
         
         Composite uriParent = getFieldEditorParent();
         final Composite pathParent = getFieldEditorParent();
+
+        // WMS / WFS
+        addField( new BooleanFieldEditor( "WMS", "WMS aktivieren", uriParent ) );
+        addField( new BooleanFieldEditor( "WFS", "WFS aktivieren", uriParent ) );
 
         // URI
         final StringFieldEditor uriField = new StringFieldEditor( "URI", "URI*", uriParent );
@@ -190,16 +197,6 @@ public class OwsPropertiesPage
         };
         addField( pathField );
         
-        // WMS
-        BooleanFieldEditor wmsField = new BooleanFieldEditor(
-                "WMS", "WMS aktivieren", getFieldEditorParent() );
-        addField( wmsField );
-        
-        // WFS
-        BooleanFieldEditor wfsField = new BooleanFieldEditor(
-                "WFS", "WFS aktivieren", getFieldEditorParent() );
-//        wfsField.setEnabled( false, getFieldEditorParent() );
-
         // description
         //    MultiLineTextFieldEditor descriptionField = new MultiLineTextFieldEditor(
         addField( new StringFieldEditor2( IProvidedService.PROP_DESCRIPTION, 
@@ -216,7 +213,7 @@ public class OwsPropertiesPage
                 "Telefon", "", pathParent ) );
 
         addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS_COUNTRY, 
-                "Adresse, Land*", "", pathParent ) );
+                "Adresse, Land", "", pathParent ) );
         addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS_CITY, 
                 "Stadt", "", pathParent ) );
         addField( new StringFieldEditor2( IProvidedService.PROP_ADDRESS_POSTALCODE, 
@@ -225,7 +222,12 @@ public class OwsPropertiesPage
                 "Strasse, Nr.", "", pathParent ) );
 
         // SRS
-        ListEditor srsField = new ListEditor( IProvidedService.PROP_SRS, "Referenzsysteme", pathParent ) {
+        ListEditor srsField = new ListEditor( IProvidedService.PROP_SRS, "Referenzsysteme*", pathParent ) {
+            @Override
+            protected void createControl( Composite parent ) {
+                super.createControl( parent );
+                getList().setToolTipText( "Für den WMS erlaubte Referenzsysteme.\nWenn kein Referenzsystem ausgewählt ist,\ndann werden alle bekannten Referenzsysteme unterstützt." );
+            }
             @Override
             protected void doFillIntoGrid( Composite parent, int numColumns ) {
                 super.doFillIntoGrid( parent, numColumns );
@@ -261,7 +263,6 @@ public class OwsPropertiesPage
 
     
     public boolean performOk() {
-        log.info( "performOk()..." );
         super.performOk();
 
         try {
@@ -281,10 +282,22 @@ public class OwsPropertiesPage
             storeString( store, IProvidedService.PROP_ADDRESS_COUNTRY );
             storeString( store, IProvidedService.PROP_ADDRESS_POSTALCODE );
             
-            if (!store.isDefault( "WMS" )) {
-                boolean value = store.getBoolean( "WMS" );
+            // enabled and flavours
+            if (!store.isDefault( "WMS" ) || !store.isDefault( "WFS" )) {
+                List<String> flavours = new ArrayList();
+                if (store.getBoolean( "WMS" )) {
+                    flavours.add( "WMS" );
+                }
+                if (store.getBoolean( "WFS" )) {
+                    flavours.add( "WFS" );
+                }
                 SetPropertyOperation op = new SetPropertyOperation();
-                op.init( IProvidedService.class, providedService, IProvidedService.PROP_ENABLED, value );
+                op.init( IProvidedService.class, providedService, IProvidedService.PROP_FLAVOURS, flavours );
+                OperationSupport.instance().execute( op, false, false );
+
+                boolean enabled = !flavours.isEmpty();
+                op = new SetPropertyOperation();
+                op.init( IProvidedService.class, providedService, IProvidedService.PROP_ENABLED, enabled );
                 OperationSupport.instance().execute( op, false, false );
             }
             
