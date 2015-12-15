@@ -456,7 +456,17 @@ public class Cache304 {
     protected CachedTile deleteTile( IRecordState record, IRecordStore.Updater tx ) throws Exception {
         // adapt dataDirSize
         CachedTile cachedTile = new CachedTile( record, dataDir );
-        long current = dataDirSize.addAndGet( -cachedTile.filesize.get() );
+        
+        Integer filesize = cachedTile.filesize.get();
+        if (filesize == null /*|| filesize.intValue() == 0*/) {
+            if (cachedTile.dataExists()) {
+                filesize = new Integer( cachedTile.data.get().length );
+            }
+            else {
+                filesize = new Integer( 0 );
+            }
+        }
+        long current = dataDirSize.addAndGet( -filesize.longValue() );
         log.debug( "  Deleting: lastAccessed=" + cachedTile.lastAccessed.get() + ", dataSizeDir=" + current );
         // delete file
         cachedTile.data.put( null );

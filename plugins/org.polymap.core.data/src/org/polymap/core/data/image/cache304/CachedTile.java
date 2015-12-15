@@ -94,7 +94,7 @@ public class CachedTile
             RandomAccessFile raf = null;
             try {
                 raf = new RandomAccessFile( new File( basedir, filename.get() ), "r" );
-                // assuming that File#length ist faster than mem copy in ByteArrayOutputStream(?)
+                // assuming that File#length ist faster than mem copy in ByteArrayOutputStream (?)
                 byte[] buf = new byte[(int)raf.length()];
                 raf.readFully( buf );
                 return buf;
