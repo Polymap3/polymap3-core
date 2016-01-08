@@ -22,6 +22,9 @@
 
 package org.polymap.openlayers.rap.widget.controls;
 
+import java.util.Collection;
+
+import org.polymap.openlayers.rap.widget.layers.Layer;
 import org.polymap.openlayers.rap.widget.layers.VectorLayer;
 
 /**
@@ -47,9 +50,12 @@ public class ModifyFeatureControl
     public final static int         ROTATE = 4;
     /** Constant used to make the control work in drag mode. */
     public final static int         DRAG = 8;
+    
+    private Layer              layer;
 
 
 	public ModifyFeatureControl(VectorLayer layer) {
+		this.layer = layer;
 	    String controlName = "ModifyFeature";
 		super.create("new OpenLayers.Control."+controlName + "(" + layer.getJSObjRef() + ");");
 		
@@ -136,4 +142,25 @@ public class ModifyFeatureControl
         }
     }
 
+    public void selectFids(Collection<String> fids) {
+        for (String fid : fids) {
+            super.addObjModCode( "var layer = " + layer.getJSObjRef() + ";" +
+                    "for (var i=0; i<layer.features.length; i++) {" +
+                    "    var feature = layer.features[i];" +
+                    "    if (feature.fid == '" + fid + "') {" +
+                    "        " + getJSObjRef() + ".selectFeature( feature );" + 
+                    "    }" +
+                    "}"
+            );
+        }
+    }
+    
+    public void unselectAll() {
+        super.addObjModCode( "var layer = " + layer.getJSObjRef() + ";" +
+                "for (var i=0; i<layer.features.length; i++) {" +
+                "    var feature = layer.features[i];" +
+                "   " + getJSObjRef() + ".unselectFeature( this.feature );" + 
+                "}"
+        );
+    }
 }
