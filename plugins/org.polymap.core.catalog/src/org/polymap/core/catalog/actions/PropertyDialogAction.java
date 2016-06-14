@@ -14,13 +14,13 @@
  */
 package org.polymap.core.catalog.actions;
 
-import net.refractions.udig.catalog.IService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
@@ -28,11 +28,14 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.internal.dialogs.PropertyDialog;
-import org.eclipse.ui.internal.dialogs.PropertyPageContributorManager;
 
 import org.polymap.core.catalog.model.CatalogImpl;
 import org.polymap.core.catalog.model.CatalogRepository;
 import org.polymap.core.model.security.ACL;
+import org.polymap.core.workbench.PolymapWorkbench;
+
+import net.refractions.udig.catalog.CatalogPlugin;
+import net.refractions.udig.catalog.IService;
 
 /**
  * 
@@ -45,6 +48,8 @@ public class PropertyDialogAction
         extends ActionDelegate
         implements IObjectActionDelegate {
 
+    private static Log log = LogFactory.getLog( PropertyDialogAction.class );
+    
     private IWorkbenchPart          part;
     
     private IStructuredSelection    selection;
@@ -57,28 +62,15 @@ public class PropertyDialogAction
 
 
     /**
-     * Returns whether the provided object has pages registered in the property
-     * page manager.
-     * 
-     * @param object
-     * @return boolean
-     */
-    private boolean hasPropertyPagesFor( Object object ) {
-        return !PropertyPageContributorManager.getManager().getApplicableContributors( object ).isEmpty();
-    }
-
-    
-    /**
      * Create the dialog for the receiver. If no pages are found, an informative
      * message dialog is presented instead.
      * 
-     * @return PreferenceDialog or <code>null</code> if no applicable pages
-     *         are found.
-     * @since 3.1
+     * @return <code>null</code> if no applicable pages are found.
      */
-    public PreferenceDialog createDialog() {
+    protected PropertyDialog openDialog() {
         Object elm = selection.getFirstElement();
         if (elm == null) {
+            log.warn( "No selection!" );
             return null;
         }
 
@@ -98,18 +90,31 @@ public class PropertyDialogAction
             throw new IllegalStateException( "Unknow element type: " + elm.getClass() );
         }
         
-        Shell shell = part.getSite().getShell();
-        String initialPageId = null;
-        return PropertyDialog.createDialogOn( shell, initialPageId, acl );
+        if (acl == null) {
+            log.warn( "Selection has no ACL: " + elm.getClass().getSimpleName() );
+            PolymapWorkbench.handleError( CatalogPlugin.ID, this, "Dialog kann nicht geöffnet werden.",
+                    new Exception( "Der Eintrag besitzt keine Zugriffsrechte: " + elm.getClass().getSimpleName() ) );
+            return null;
+        }
+        else {
+            Shell shell = part.getSite().getShell();
+            PropertyDialog dialog = PropertyDialog.createDialogOn( shell, null, acl );
+            if (dialog != null) {
+                dialog.open();
+            }
+            else {
+                PolymapWorkbench.handleError( CatalogPlugin.ID, this, "Dialog kann nicht geöffnet werden.", 
+                        new Exception( "Keine Informationen zu: " + acl.getClass().getSimpleName() ) );
+            }
+            return dialog;
+        }
     }
     
 
     @Override
     public void runWithEvent( IAction action, Event ev ) {
-        PreferenceDialog dialog = createDialog();
-        if (dialog != null) {
-            dialog.open();
-        }
+        openDialog();
+        
 //        Display.getCurrent().asyncExec( new Runnable() {
 //
 //            public void run() {
