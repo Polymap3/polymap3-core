@@ -453,17 +453,24 @@ public class CRSChooser {
                 Set<String> codes = factory.getAuthorityCodes( CoordinateReferenceSystem.class );
                 for (Object codeObj : codes) {
                     String code = (String)codeObj;
-                    String description;
-                    try {
-                        description = factory.getDescriptionText( code ).toString();
-                    }
-                    catch (Exception e1) {
-                        description = Messages.get("CRSChooser_unnamed");
-                    }
-                    description += " (" + code + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-                    crsCodeMap.put( code, description );
-                    if (matchesFilter( description.toUpperCase(), filter )) {
-                        descriptions.add( description );
+                    
+                    // XXX falko: dirty hack to allow just EPSG:XXX CRSs
+                    if (code != null && code.startsWith( "EPSG" )) {
+
+                        String description;
+                        try {
+                            description = factory.getDescriptionText( code ).toString();
+                        }
+                        catch (Exception e1) {
+                            // XXX falko: no UNNAMED CRSs
+                            continue;
+                            //description = Messages.get("CRSChooser_unnamed");
+                        }
+                        description += " (" + code + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+                        crsCodeMap.put( code, description );
+                        if (matchesFilter( description.toUpperCase(), filter )) {
+                            descriptions.add( description );
+                        }
                     }
                 }
             }
