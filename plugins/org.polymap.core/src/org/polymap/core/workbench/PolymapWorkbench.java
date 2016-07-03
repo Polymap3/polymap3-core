@@ -89,7 +89,9 @@ public class PolymapWorkbench
     public static void handleError( String pluginId, Object src, final String msg, Throwable e) {
         log.error( msg, e );
 
-        final Status status = new Status( IStatus.ERROR, pluginId, e.getLocalizedMessage(), e );
+        final Status status = e != null
+                ? new Status( IStatus.ERROR, pluginId, e.getLocalizedMessage(), e )
+                : new Status( IStatus.ERROR, pluginId, msg );
         CorePlugin.getDefault().getLog().log( status );
 
         final Display display = Polymap.getSessionDisplay();
