@@ -1,6 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2011, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2011-2016, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -12,7 +12,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  */
-package org.polymap.service.fs.providers;
+package org.polymap.service.fs.providers.shape;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -67,7 +67,7 @@ class ShapefileGenerator {
     
     
     /**
-     * Returns the timestamp formatter of teh current thread.
+     * Returns the timestamp formatter of the current thread.
      */
     public static DateFormat timestampFormat() {
         DateFormat formatter = formatters.get();

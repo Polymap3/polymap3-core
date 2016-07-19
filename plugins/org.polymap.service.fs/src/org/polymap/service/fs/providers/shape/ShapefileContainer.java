@@ -1,6 +1,6 @@
 /* 
  * polymap.org
- * Copyright 2011-2012, Polymap GmbH. All rights reserved.
+ * Copyright (C) 2011-2016, Polymap GmbH. All rights reserved.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -12,7 +12,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
  */
-package org.polymap.service.fs.providers;
+package org.polymap.service.fs.providers.shape;
+
+import static org.geotools.data.shapefile.ShapefileDataStoreFactory.CREATE_SPATIAL_INDEX;
+import static org.geotools.data.shapefile.ShapefileDataStoreFactory.MEMORY_MAPPED;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +47,7 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.util.NullProgressListener;
 import org.opengis.feature.Feature;
 import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.Property;
@@ -161,8 +165,7 @@ class ShapefileContainer
     }
     
 
-    public OutputStream getOutputStream( String fileSuffix )
-    throws IOException {
+    public OutputStream getOutputStream( String fileSuffix ) throws IOException {
         // FIXME locking?
         File f = Path.fromOSString( file.getAbsolutePath() )
                 .removeFileExtension().addFileExtension( fileSuffix ).toFile();
@@ -186,8 +189,7 @@ class ShapefileContainer
     }
     
     
-    public InputStream getInputStream( String fileSuffix )
-    throws IOException {
+    public InputStream getInputStream( String fileSuffix ) throws IOException {
         // FIXME locking?
         // init shapefile
         getFileSize( fileSuffix );
@@ -249,8 +251,7 @@ class ShapefileContainer
         private DateFormat  timestampFormat = ShapefileGenerator.timestampFormat();
 
 
-        public UpdateJob() 
-        throws IOException {
+        public UpdateJob() throws IOException {
             super( "ShapefileContainer.UpdateJob" );
 
             // make a copy of the original data
@@ -259,7 +260,7 @@ class ShapefileContainer
                 log.warn( "UpdateJob: 'original' data dir already exists: " + origDataDir.getAbsolutePath() );
             }
             else {
-                log.debug( "UpdateJob: copying to: " + origDataDir.getAbsolutePath() );
+                log.info( "UpdateJob: copying to: " + origDataDir.getAbsolutePath() );
                 for (String fileSuffix : ShapefileGenerator.FILE_SUFFIXES) {
                     File src = resolveFile( fileSuffix );
                     File dest = new File( origDataDir, src.getName() );
@@ -269,8 +270,7 @@ class ShapefileContainer
         }
 
         
-        protected void runWithException( IProgressMonitor monitor )
-        throws Exception {
+        protected void runWithException( IProgressMonitor monitor ) throws Exception {
             log.info( "UpdateJob: starting..." );
             lock.writeLock().lock();
 
@@ -282,8 +282,8 @@ class ShapefileContainer
                 // modifiedDs
                 Map<String,Serializable> params = new HashMap<String,Serializable>();
                 params.put( "url", file.toURI().toURL() );
-                params.put( "create spatial index", Boolean.TRUE );
-
+                params.put( CREATE_SPATIAL_INDEX.key, Boolean.TRUE );
+                params.put( MEMORY_MAPPED.key, Boolean.TRUE );
                 ShapefileDataStore modifiedDs = shapeFactory.createDataStore( params );
                 String typeName = modifiedDs.getTypeNames()[0];
                 final FeatureSource<SimpleFeatureType, SimpleFeature> modifiedFs = modifiedDs.getFeatureSource( typeName );
@@ -291,8 +291,8 @@ class ShapefileContainer
                 // origDs
                 params = new HashMap<String,Serializable>();
                 params.put( "url", new File( origDataDir, file.getName() ).toURI().toURL() );
-                params.put( "create spatial index", Boolean.TRUE );
-
+                params.put( CREATE_SPATIAL_INDEX.key, Boolean.TRUE );
+                params.put( MEMORY_MAPPED.key, Boolean.TRUE );
                 ShapefileDataStore origDs = shapeFactory.createDataStore( params );
                 final FeatureSource<SimpleFeatureType, SimpleFeature> origFs = origDs.getFeatureSource( typeName );
 
@@ -312,19 +312,26 @@ class ShapefileContainer
                         newSize.incrementAndGet();
                         
                         // normalize attribute names
+                        log.info( "candidate: " + candidate );
                         SimpleFeatureType schema = origFs.getSchema();
                         candidate = normalizeAttributeNames( candidate, schema );
                         
                         try {
                             Id fid = ff.id( Collections.singleton( candidate.getIdentifier() ) );
-                            Object[] orig = origFs.getFeatures( fid ).toArray();
+                            final List<SimpleFeature> orig = new ArrayList();
+                            origFs.getFeatures( fid ).accepts( new FeatureVisitor() {
+                                @Override
+                                public void visit( Feature feature ) {
+                                    orig.add( (SimpleFeature)feature );
+                                }
+                            }, new NullProgressListener() );
                             
-                            if (orig.length == 0) {
+                            if (orig.isEmpty()) {
                                 log.info( "   Feature has been added: " + candidate.getIdentifier() );
                                 added.add( (SimpleFeature)candidate );
                             }
-                            else if (orig.length == 1
-                                    && isFeatureModified( (SimpleFeature)candidate, (SimpleFeature)orig[0] )) {
+                            else if (orig.size() == 1
+                                    && isFeatureModified( (SimpleFeature)candidate, orig.get( 0 ) )) {
                                 log.info( "   Feature has been modified: " + candidate.getIdentifier() );
                                 
                                 // FIXME check timestamps; this was done to find out if the features received from client
@@ -344,7 +351,7 @@ class ShapefileContainer
                                 Long timestamp = timestamp( (SimpleFeature)candidate );
                                 updater.checkSet( key, timestamp, null );
                                 
-                                modified.add( new SimpleFeature[] { (SimpleFeature)candidate, (SimpleFeature)orig[0] } );
+                                modified.add( new SimpleFeature[] { (SimpleFeature)candidate, orig.get( 0 ) } );
                             }
                         }
                         catch (IOException e) {
@@ -384,9 +391,11 @@ class ShapefileContainer
                     }, null );
                 }
                 
-                // write own modifications
+                // write out modifications
                 Transaction tx = new DefaultTransaction( layer.getLabel() + "-write-back" );
                 try {
+                    //layerFs.getDataStore().updateSchema( );
+                    
                     // added
                     if (!added.isEmpty()) {
                         FeatureCollection coll = FeatureCollections.newCollection();

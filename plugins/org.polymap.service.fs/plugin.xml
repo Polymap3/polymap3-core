@@ -18,9 +18,9 @@
             name="Projects">
       </contentProvider>
       <contentProvider
-            class="org.polymap.service.fs.providers.ShapefileContentProvider"
-            id="org.polymap.service.fs.ShapefileContentProvider"
-            name="Shapefile">
+            class="org.polymap.service.fs.providers.shape.LayerShapefileContentProvider"
+            id="org.polymap.service.fs.LayerShapefileContentProvider"
+            name="Layer Shapefile">
       </contentProvider>
       <contentProvider
             class="org.polymap.service.fs.providers.GeoJsonContentProvider"
@@ -38,7 +38,7 @@
             name="CSV">
       </contentProvider>
       <contentProvider
-            class="org.polymap.service.fs.providers.FsContentProvider"
+            class="org.polymap.service.fs.providers.fs.FsContentProvider"
             id="org.polymap.service.fs.FsContentProvider"
             name="Disk">
       </contentProvider>

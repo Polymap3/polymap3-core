@@ -62,12 +62,14 @@ class RSimpleFeature
 
     @Override
     public Object getAttribute( String name ) {
-        return getProperty( name ).getValue();
+        Property prop = getProperty( name );
+        return prop != null ? prop.getValue() : null;
     }
 
     @Override
     public Object getAttribute( Name name ) {
-        return getProperty( name ).getValue();
+        Property prop = getProperty( name );
+        return prop != null ? prop.getValue() : null;
     }
 
     @Override

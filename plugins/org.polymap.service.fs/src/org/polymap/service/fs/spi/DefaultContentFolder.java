@@ -22,10 +22,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bradmcevoy.http.XmlWriter;
+import com.bradmcevoy.http.XmlWriter.Element;
+import com.google.common.base.Throwables;
+
 import org.eclipse.core.runtime.IPath;
 
 /**
@@ -150,7 +154,21 @@ public class DefaultContentFolder
             // file? -> content length
             if (node instanceof IContentFile) {
                 IContentFile f = (IContentFile)node;
-                w.begin( "td" ).open().writeText( f.getContentLength()+"" ).close();
+                Element sizeElm = w.begin( "td" ).open();
+                try {
+                    Long length = f.getContentLength();
+                    sizeElm.writeText( length != null 
+                            ? FileUtils.byteCountToDisplaySize( length )
+                            : "unbekannt" );
+                }
+                catch (Exception e) {
+                    log.warn( "", e );
+                    sizeElm.writeText( "Fehler: " 
+                            + Throwables.getRootCause( e ).getLocalizedMessage() );
+                }
+                finally {
+                    sizeElm.close();
+                }
                 
 //                if (f instanceof IContentDeletable) {
 //                    w.begin( "td" ).open().writeText(
