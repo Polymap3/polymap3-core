@@ -312,6 +312,24 @@
             toolPath="digitize/snap"
             tooltip="%tools_snap_tip">
       </tool>
+      <tool
+            class="org.polymap.core.mapeditor.tooling.edit.DifferenceTool"
+            description="%tools_difference_description"
+            icon="icons/etool16/hole_vertex_mode.gif"
+            id="org.polymap.core.mapeditor.DifferenceTool"
+            label="%tools_difference_label"
+            toolPath="difference"
+            tooltip="%tools_difference_tip">
+      </tool>
+      <tool
+            class="org.polymap.core.mapeditor.tooling.edit.SnapTool"
+            description="%tools_snap_description"
+            icon="icons/etool16/snap_target.gif"
+            id="org.polymap.core.mapeditor.DifferenceSnapTool"
+            label="%tools_snap_label"
+            toolPath="difference/snap"
+            tooltip="%tools_snap_tip">
+      </tool>
    </extension>
    <extension
          point="org.eclipse.ui.decorators">
