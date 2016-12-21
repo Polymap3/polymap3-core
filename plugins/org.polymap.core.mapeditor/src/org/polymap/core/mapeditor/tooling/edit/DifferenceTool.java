@@ -33,7 +33,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.google.common.base.Predicate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import org.eclipse.swt.widgets.Composite;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -207,7 +206,7 @@ public class DifferenceTool
     
     protected void modifyGeometries( String json ) throws Exception {
         // parse JSON
-        MultiPolygon hole = parseJSON( json );
+        Geometry hole = parseJSON( json );
         
         // find features to modify
         PipelineFeatureSource fs = PipelineFeatureSource.forLayer( getSelectedLayer(), false );
@@ -245,7 +244,7 @@ public class DifferenceTool
     }
     
     
-    protected MultiPolygon parseJSON( String json ) throws Exception {
+    protected Geometry parseJSON( String json ) throws Exception {
         FeatureJSON io = new FeatureJSON();
         SimpleFeature feature = io.readFeature( new StringReader( json ) );
         log.info( "JSON Feature: " + feature );
@@ -259,7 +258,7 @@ public class DifferenceTool
 //            geom = JTS.transform( geom, transform );
 //        }
 
-        return (MultiPolygon)feature.getDefaultGeometry();
+        return (Geometry)feature.getDefaultGeometry();
     }
 
     
