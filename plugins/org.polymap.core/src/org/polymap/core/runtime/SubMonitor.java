@@ -31,9 +31,15 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 public class SubMonitor
         extends SubProgressMonitor {
 
-    private static Log log = LogFactory.getLog( SubMonitor.class );
+    private static final Log log = LogFactory.getLog( SubMonitor.class );
 
     private String      mainTaskName;
+    
+    private Timer       timer;
+
+    private int         totalWork;
+    
+    private int         pendingWork;
     
     
     public SubMonitor( IProgressMonitor monitor, int ticks ) {
@@ -41,15 +47,32 @@ public class SubMonitor
     }
 
 
+    @SuppressWarnings("hiding")
     public void beginTask( String name, int totalWork ) {
         super.beginTask( name, totalWork );
-        mainTaskName = name;
+        this.mainTaskName = name;
+        this.totalWork = totalWork;
+        
         super.subTask( mainTaskName );
+        timer = new Timer();
     }
 
 
     public void subTask( String name ) {
         super.subTask( mainTaskName + " - " + name );
+    }
+
+
+    @Override
+    public void worked( int work ) {
+        if (timer.elapsedTime() > 1000) {
+            super.worked( pendingWork + work );
+            pendingWork = 0;
+            timer.start();
+        }
+        else {
+            pendingWork += work;
+        }
     }
     
 }
