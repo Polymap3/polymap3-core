@@ -40,7 +40,7 @@ import org.polymap.core.qi4j.event.PropertyChangeSupport;
 public interface IMap
         extends Entity, Labeled, Visible, ACL, ParentMap, IAdaptable, PropertyChangeSupport { 
 
-    public static final int[]       DEFAULT_SCALES = new int[] {1000000, 500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 300, 100};
+    public static final int[]       DEFAULT_SCALES = new int[] {1000000, 500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1500, 1000, 500, 300, 100};
     public static final int         DEFAULT_DPI = 90;
     
     public static final String      PROP_MAPS = "maps";
