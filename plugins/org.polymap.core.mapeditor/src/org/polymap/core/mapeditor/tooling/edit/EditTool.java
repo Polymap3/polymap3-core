@@ -14,15 +14,16 @@
  */
 package org.polymap.core.mapeditor.tooling.edit;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.StringReader;
 
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,10 +31,8 @@ import com.google.common.base.Predicate;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-
 import org.polymap.core.data.PipelineFeatureSource;
 import org.polymap.core.data.operations.ModifyFeaturesOperation;
 import org.polymap.core.data.ui.featureselection.FeatureSelectionView;
@@ -46,13 +45,14 @@ import org.polymap.core.model.security.AclPermission;
 import org.polymap.core.operation.OperationSupport;
 import org.polymap.core.project.ILayer;
 import org.polymap.core.runtime.Polymap;
+import org.polymap.core.runtime.event.EventHandler;
 import org.polymap.core.workbench.PolymapWorkbench;
-
 import org.polymap.openlayers.rap.widget.base.OpenLayersEventListener;
 import org.polymap.openlayers.rap.widget.base.OpenLayersObject;
 import org.polymap.openlayers.rap.widget.controls.KeyboardDefaultsControl;
 import org.polymap.openlayers.rap.widget.controls.ModifyFeatureControl;
 import org.polymap.openlayers.rap.widget.controls.NavigationControl;
+import org.polymap.openlayers.rap.widget.controls.SelectFeatureControl;
 
 /**
  * 
@@ -61,7 +61,7 @@ import org.polymap.openlayers.rap.widget.controls.NavigationControl;
  */
 public class EditTool
         extends BaseLayerEditorTool 
-        implements OpenLayersEventListener {
+        implements PropertyChangeListener, OpenLayersEventListener {
 
     private static Log log = LogFactory.getLog( EditTool.class );
 
@@ -72,6 +72,8 @@ public class EditTool
     private NavigationControl       naviControl;
     
     private KeyboardDefaultsControl keyboardControl;
+    
+    private LayerFeatureSelectionManager fsm;
 
     @Override
     public void init( IEditorToolSite site ) {
@@ -106,6 +108,10 @@ public class EditTool
         if (getSelectedLayer() == null) {
             return;
         }
+        
+        this.fsm = LayerFeatureSelectionManager.forLayer( getSelectedLayer() );
+        this.fsm.addSelectionChangeListener( this );
+        
 //      // keyboardControl
         keyboardControl = new KeyboardDefaultsControl();
         getSite().getEditor().addControl( keyboardControl );
@@ -163,8 +169,9 @@ public class EditTool
                             FeatureJSON io = new FeatureJSON();
                             final SimpleFeature feature = io.readFeature( new StringReader( _payload.get( "feature" ) ) );
 
-                            LayerFeatureSelectionManager fsm = LayerFeatureSelectionManager.forLayer( getSelectedLayer() );
-                            fsm.setHovered( feature.getID() );
+                            EditTool.this.fsm.removeSelectionChangeListener( EditTool.this );
+                            EditTool.this.fsm.setHovered( feature.getID() );
+                            EditTool.this.fsm.addSelectionChangeListener( EditTool.this );
                         }
                         catch (Exception e) {
                             PolymapWorkbench.handleError( MapEditorPlugin.PLUGIN_ID, this, e.getMessage(), e );
@@ -188,6 +195,11 @@ public class EditTool
     
     @Override
     public void onDeactivate() {
+        if (fsm != null) {
+            fsm.removeSelectionChangeListener( this );
+            fsm = null;
+        }
+        
         super.onDeactivate();
         
         if (keyboardControl != null) {
@@ -215,6 +227,25 @@ public class EditTool
             lastControl = layersList;
         }
     }
+    
+    /**
+     * Listen to feature selection changes from {@link LayerFeatureSelectionManager}.
+     */
+    @Override
+    @EventHandler
+    public void propertyChange( PropertyChangeEvent ev ) {
+        assert fsm == ev.getSource();
+        
+        //select
+        if (ev.getPropertyName().equals( LayerFeatureSelectionManager.PROP_FILTER )) {
+            vectorLayer.selectFeatures( fsm.getFeatureCollection() );
+        }
+        // hover
+        else if (ev.getPropertyName().equals( LayerFeatureSelectionManager.PROP_HOVER )) {
+        	modifyControl.unselectAll();
+        	modifyControl.selectFids( Collections.singletonList( (String)ev.getNewValue() ) );
+        }
+    }    
 
     
     @Override
